@@ -61,22 +61,22 @@ Tempistica realistica: 8-12 mesi di calendario al ritmo di 2-4 ore/settimana
 - [ ] Progetto Test creato in Unity per verifica finale
 
 ## Ultima sessione
-**Data:** [inserire data odierna]
+**Data:** [data di oggi]
 
 **Cosa ho fatto:**
-- Definita strategia generale del progetto
-- Scelto Unity come motore (avevo già esperienza precedente, 2+ anni fa)
-- Installato Visual Studio Community con workload Unity
-- Verificato che VS Community riconosce le API Unity (test transform.)
+- Configurata identità Git (user.name, user.email)
+- Creata cartella progetto in C:\Dev\BeachVolley
+- Risolto problema URL doppio nel remote
+- Configurato Personal Access Token / Git Credential Manager
+- Primo commit + push su GitHub riusciti
 
 **Dove sono bloccato:**
-- Niente al momento
+- Niente
 
 **Prossimo passo:**
-- Completare i punti ancora aperti del setup (vedi "Da fare" sopra),
-  con priorità su: installazione Unity, configurazione Git, collegamento GitHub
-- Procedere passo passo seguendo le istruzioni dei messaggi precedenti
-  nella chat "Beach Volley - Fase 0"
+- Installare Unity Hub
+- Installare Unity LTS con moduli Android, iOS, Documentation
+- Creare progetto Test per verifica
 
 ## Strategia chat con Claude
 - Una chat per FASE del progetto, non per singola sessione
