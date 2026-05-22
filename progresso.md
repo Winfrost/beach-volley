@@ -39,7 +39,11 @@ Modalità: 1 vs CPU e 2 giocatori sullo stesso schermo.
 Tempistica realistica: 8-12 mesi di calendario al ritmo di 2-4 ore/settimana
 (con possibile aumento delle ore).
 
-## Stato attuale: Fase 0 - Setup ambiente
+## Stato attuale: Fase 0 - Setup ambiente ✅ COMPLETATA
+
+## Prossima Fase: 1 - Ricostruzione prototipo in Unity
+Obiettivo: replicare il gameplay del prototipo HTML in Unity con codice
+pulito, modulare, e fondamenta architetturali solide.
 
 ### Completato ✅
 - [x] Visual Studio Community installato
@@ -61,22 +65,22 @@ Tempistica realistica: 8-12 mesi di calendario al ritmo di 2-4 ore/settimana
 - [ ] Progetto Test creato in Unity per verifica finale
 
 ## Ultima sessione
-**Data:** [data di oggi]
+**Data:** [22/05/2026]
 
 **Cosa ho fatto:**
-- Configurata identità Git (user.name, user.email)
-- Creata cartella progetto in C:\Dev\BeachVolley
-- Risolto problema URL doppio nel remote
-- Configurato Personal Access Token / Git Credential Manager
-- Primo commit + push su GitHub riusciti
+- Verificata installazione Unity [tua versione] con tutti i moduli (Android, iOS, Documentation)
+- Account Unity attivo, licenza Personal OK
+- Progetto Test creato e aperto senza errori
+- Verificato linking Unity ↔ Visual Studio Community
+- Test autocompletamento transform. funzionante
+- Cancellato progetto Test
 
 **Dove sono bloccato:**
 - Niente
 
 **Prossimo passo:**
-- Installare Unity Hub
-- Installare Unity LTS con moduli Android, iOS, Documentation
-- Creare progetto Test per verifica
+- INIZIO FASE 1: creazione progetto Unity vero del Beach Volley
+- Sessione 2: setup progetto + .gitignore Unity + architettura + prima scena
 
 ## Strategia chat con Claude
 - Una chat per FASE del progetto, non per singola sessione
