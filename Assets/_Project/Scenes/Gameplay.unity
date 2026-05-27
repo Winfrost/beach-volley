@@ -547,7 +547,7 @@ GameObject:
   - component: {fileID: 899973339}
   m_Layer: 0
   m_Name: NetPlaceholder
-  m_TagString: Untagged
+  m_TagString: Net
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1165,6 +1165,7 @@ GameObject:
   - component: {fileID: 2004847002}
   - component: {fileID: 2004847003}
   - component: {fileID: 2004847004}
+  - component: {fileID: 2004847005}
   m_Layer: 0
   m_Name: Ball
   m_TagString: Ball
@@ -1309,6 +1310,19 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_Radius: 0.49999997
+--- !u!114 &2004847005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2004847000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c582c1037cb08f5478261251b12c92ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BeachVolley.Gameplay.Ball
+  stats: {fileID: 11400000, guid: 1cb29a0d52cc8034586ad7468f48c6df, type: 2}
 --- !u!1 &2077817038
 GameObject:
   m_ObjectHideFlags: 0
