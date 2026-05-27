@@ -39,8 +39,8 @@ Modalità: 1 vs CPU e 2 giocatori sullo stesso schermo.
 Tempistica realistica: 8-12 mesi di calendario al ritmo di 2-4 ore/settimana
 (con possibile aumento delle ore).
 
-## Stato attuale: Fase 1 - Ricostruzione prototipo in Unity
-Setup completato. Architettura di base in piedi. Pronti per il gameplay.
+## Stato attuale: Fase 1 - Ricostruzione prototipo in Unity (in corso)
+Player giocabili in 2 con tastiera. Manca: rete con collider, palla, punteggio.
 
 ## Prossima Fase: 1 - Ricostruzione prototipo in Unity
 Obiettivo: replicare il gameplay del prototipo HTML in Unity con codice
@@ -66,40 +66,58 @@ pulito, modulare, e fondamenta architetturali solide.
 - [ ] Progetto Test creato in Unity per verifica finale
 
 ## Ultima sessione
-**Data:** [22/05/2026]
+**Data:** [data di oggi]
 
-**Cosa ho fatto - Sessione 2 completa:**
-- Configurato .gitignore Unity ufficiale
-- Project Settings per Android mobile (1920x1080 landscape, IL2CPP, ARMv7+ARM64, API 24+)
-- Struttura cartelle in Assets/_Project/ (Scripts/Core, Gameplay, AI, UI, Utils; Sprites, Audio, Prefabs, ecc.)
-- Scena MainMenu: camera ortografica size 5.4 a (0,0,-10), Sorting Layers (Background/Midground/Default/Gameplay/Foreground/UI), Tags (Player1/Player2/Ball/Net/Ground)
-- Hierarchy organizzata con contenitori separatori
-- DECISIONI ARCHITETTURA: Singleton + State Machine + Eventi + ScriptableObject + Input System nuovo
-- 3 script creati in Scripts/Core/:
-  - GameState.cs (enum con 8 stati)
-  - GameManager.cs (Singleton + DontDestroyOnLoad + state machine con validazione transizioni)
-  - GameStateDebugListener.cs (listener di esempio con subscription resiliente)
-- Script Execution Order: GameManager = -100 (gira prima di tutti)
-- BUG risolti:
-  - DontDestroyOnLoad richiede root GameObject (spostato GameManager fuori da Managers)
-  - Race condition OnEnable: risolta con Script Execution Order + fallback in Start del listener
+**Cosa ho fatto - Sessione 3 completa:**
+- Creata scena Gameplay separata (Build Profiles aggiornato: MainMenu idx 0, Gameplay idx 1)
+- Sprite placeholder via Unity 2D Object: Player1 (rosso), Player2 (blu), Ground (sabbia), NetPlaceholder (bianco)
+- Fisica Player: Rigidbody2D dinamico, GravityScale=3, FreezeRotationZ, Continuous Collision
+- CapsuleCollider2D dimensionato considerando Transform.Scale (Size 0.9 x 0.95 dato Scale Y=2)
+- Layer "Ground" creato (User Layer 6) e assegnato al Ground GameObject
+- ScriptableObject PlayerStats (movement, jump, ground check) con [Header], [Tooltip], [Range], [CreateAssetMenu]
+- Asset PlayerStats_Default in Settings/, tuning a mano (7/14/2/2.5)
+- Script PlayerController.cs in Gameplay/:
+  - [RequireComponent(Rigidbody2D)]
+  - Input vecchio Input Manager (Player1: frecce+Spazio, Player2: WASD)
+  - Update legge input, FixedUpdate gestisce fisica
+  - Pattern flag jumpPressedThisFrame per non perdere input tra frame
+  - Ground check via Physics2D.OverlapCircle + LayerMask
+  - Velocity diretta per movimento orizzontale (no momentum, feel arcade)
+  - Variable jump height (low jump multiplier se rilascio il tasto in salita)
+  - Fall gravity multiplier per atterraggi snappy
+  - Gizmo verde nel OnDrawGizmosSelected per visualizzare ground check
+  - Enum PlayerIndex per mappare input ai due giocatori
+- Active Input Handling cambiato a "Both" in Player Settings (Unity 6 default era "Input System Package Only")
+- Player2 creato per duplicazione: 0 righe di codice, solo Inspector
 
 **Pattern imparati:**
-- Singleton (con auto-detach dal parent come safety)
-- State Machine (transizioni esplicitamente validate)
-- Observer/Events (Action<T1,T2> + sottoscrizione in OnEnable / disiscrizione in OnDisable)
-- SerializeField per esporre private in Inspector
-- Direttive preprocessore #if UNITY_EDITOR per codice solo-debug
-- Script Execution Order per dipendenze tra script
+- ScriptableObject per configurazioni (no magic numbers nel codice)
+- [CreateAssetMenu] per generare asset da menu Unity
+- [Header]/[Tooltip]/[Range] per Inspector user-friendly
+- [RequireComponent] per garantire dipendenze tra componenti
+- Update vs FixedUpdate (input vs physics)
+- Velocity diretta vs Forze (arcade feel vs realismo)
+- Variable jump height (Mario-style)
+- Physics2D.OverlapCircle per ground check geometrico
+- Layer (fisica) vs Sorting Layer (rendering) - sono cose diverse
+- Gizmos.DrawWireSphere per debug visivo in Scene view
+- Riusabilità: 1 script + ScriptableObject + enum = N personaggi
+
+**Lezioni dagli intoppi:**
+- CapsuleCollider2D NON scala 1:1 visivamente se Transform.Scale != 1 — Size va aggiustata
+- Unity 6 Universal 2D template usa il nuovo Input System di default → InvalidOperationException
+- Verificare sempre i collider con Gizmos in Scene view
+- Leggere e fidarsi dei messaggi di errore: spesso indicano già la soluzione
 
 **Dove sono bloccato:**
 - Niente
 
-**Prossimo passo - inizio Fase 1 vera:**
-- Sessione 3: scena di gioco "Gameplay" + camera per il campo
-- Creare il GameObject Player (sprite placeholder + Rigidbody2D + Collider)
-- Primo script Player.cs: movimento orizzontale + salto con input keyboard
-- (Touch input dopo, prima facciamo che funzioni su PC)
+**Prossimo passo - Sessione 4:**
+- Rete vera con BoxCollider2D che blocca i Player a metà campo
+- Limiti laterali al campo (no uscire dai bordi)
+- PALLA: GameObject sprite circolare + Rigidbody2D + CircleCollider2D + PhysicsMaterial2D
+- Script Ball.cs per gestire collisioni e lanciare eventi
+- Setup di reset palla dopo un punto (futuro)
 
 ## Strategia chat con Claude
 - Una chat per FASE del progetto, non per singola sessione
@@ -121,6 +139,17 @@ pulito, modulare, e fondamenta architetturali solide.
   2. MonoBehaviour fa UNA cosa (max ~150 righe come obiettivo)
   3. Commit frequenti, piccoli e descrittivi
 
+## Decisioni di architettura prese (aggiunte Sessione 3)
+- Active Input Handling = "Both" (vecchio + nuovo Input System contemporaneamente)
+- Vecchio Input Manager usato per il primo prototipo, migrazione al nuovo Input System nella Sessione 5 (per multi-touch e gestione gamepad)
+- Player NON è un Singleton, è oggetto di gioco normale
+- Player NON ha riferimenti al GameManager (accoppiamento minimo)
+- Movimento orizzontale: velocity diretta (no AddForce) per feel arcade
+- Salto: impulso verticale + variable jump height + gravity multipliers
+- Ground check: Physics2D.OverlapCircle con LayerMask "Ground"
+- Configurazione gameplay: tutta in ScriptableObject (PlayerStats), nessun magic number negli script
+- Convention naming asset: PlayerStats_Default, PlayerStats_Speedy (futuri), ecc. (suffisso = variante)
+  
 ## Backlog idee future
 *(vuoto per ora, raccoglierà idee che emergono lungo il percorso
 ma che NON vanno implementate subito)*
