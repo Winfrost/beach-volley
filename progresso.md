@@ -40,7 +40,8 @@ Tempistica realistica: 8-12 mesi di calendario al ritmo di 2-4 ore/settimana
 (con possibile aumento delle ore).
 
 ## Stato attuale: Fase 1 - Ricostruzione prototipo in Unity (in corso)
-Player giocabili in 2 con tastiera. Manca: rete con collider, palla, punteggio.
+Mini-gameplay fisico: 2 Player + palla che rimbalza + campo con rete e muri.
+Manca: punteggio, reset automatico, HUD, fine partita.
 
 ## Prossima Fase: 1 - Ricostruzione prototipo in Unity
 Obiettivo: replicare il gameplay del prototipo HTML in Unity con codice
@@ -68,56 +69,52 @@ pulito, modulare, e fondamenta architetturali solide.
 ## Ultima sessione
 **Data:** [data di oggi]
 
-**Cosa ho fatto - Sessione 3 completa:**
-- Creata scena Gameplay separata (Build Profiles aggiornato: MainMenu idx 0, Gameplay idx 1)
-- Sprite placeholder via Unity 2D Object: Player1 (rosso), Player2 (blu), Ground (sabbia), NetPlaceholder (bianco)
-- Fisica Player: Rigidbody2D dinamico, GravityScale=3, FreezeRotationZ, Continuous Collision
-- CapsuleCollider2D dimensionato considerando Transform.Scale (Size 0.9 x 0.95 dato Scale Y=2)
-- Layer "Ground" creato (User Layer 6) e assegnato al Ground GameObject
-- ScriptableObject PlayerStats (movement, jump, ground check) con [Header], [Tooltip], [Range], [CreateAssetMenu]
-- Asset PlayerStats_Default in Settings/, tuning a mano (7/14/2/2.5)
-- Script PlayerController.cs in Gameplay/:
-  - [RequireComponent(Rigidbody2D)]
-  - Input vecchio Input Manager (Player1: frecce+Spazio, Player2: WASD)
-  - Update legge input, FixedUpdate gestisce fisica
-  - Pattern flag jumpPressedThisFrame per non perdere input tra frame
-  - Ground check via Physics2D.OverlapCircle + LayerMask
-  - Velocity diretta per movimento orizzontale (no momentum, feel arcade)
-  - Variable jump height (low jump multiplier se rilascio il tasto in salita)
-  - Fall gravity multiplier per atterraggi snappy
-  - Gizmo verde nel OnDrawGizmosSelected per visualizzare ground check
-  - Enum PlayerIndex per mappare input ai due giocatori
-- Active Input Handling cambiato a "Both" in Player Settings (Unity 6 default era "Input System Package Only")
-- Player2 creato per duplicazione: 0 righe di codice, solo Inspector
+**Cosa ho fatto - Sessione 4 completa:**
+- Muri laterali invisibili (LeftWall X=-10, RightWall X=10, GameObject vuoti + BoxCollider2D 1x20)
+- Rete resa solida: BoxCollider2D su NetPlaceholder (Player separati nei due lati)
+- Tag "Net" assegnato a NetPlaceholder
+- PALLA creata:
+  - Sprite Circle (Scale 0.6), Sorting Layer Gameplay, Order 1, Tag "Ball"
+  - Rigidbody2D: Dynamic, Mass ~0.35, GravityScale ~1.6, Continuous, no freeze rotation
+  - CircleCollider2D
+  - PhysicsMaterial2D "BallBouncy" (Friction 0.2, Bounciness 0.7) assegnato al Rigidbody
+- ScriptableObject BallStats (serve position, serve velocity, rest velocity) + asset BallStats_Default
+- Script Ball.cs in Gameplay/:
+  - [RequireComponent] Rigidbody2D + CircleCollider2D
+  - OnCollisionEnter2D con CompareTag per Player1/Player2/Ground/Net
+  - 3 eventi: OnHitByPlayer, OnGroundTouched, OnNetTouched
+  - lastTouchedBy + hasBeenTouched (stato per regole volley future)
+  - HandleGroundTouch determina lato campo via transform.position.x < 0
+  - ResetBall(PlayerIndex) azzera velocity lineare+angolare e riposiziona
+  - Debug temporaneo: R resetta serve Player1, T serve Player2 (#if UNITY_EDITOR)
+- Tuning fisica palla fatto giocando in 2
 
 **Pattern imparati:**
-- ScriptableObject per configurazioni (no magic numbers nel codice)
-- [CreateAssetMenu] per generare asset da menu Unity
-- [Header]/[Tooltip]/[Range] per Inspector user-friendly
-- [RequireComponent] per garantire dipendenze tra componenti
-- Update vs FixedUpdate (input vs physics)
-- Velocity diretta vs Forze (arcade feel vs realismo)
-- Variable jump height (Mario-style)
-- Physics2D.OverlapCircle per ground check geometrico
-- Layer (fisica) vs Sorting Layer (rendering) - sono cose diverse
-- Gizmos.DrawWireSphere per debug visivo in Scene view
-- Riusabilità: 1 script + ScriptableObject + enum = N personaggi
+- PhysicsMaterial2D (Friction + Bounciness) per superfici/oggetti
+- GameObject vuoto + Collider per geometria di collisione invisibile (muri)
+- OnCollisionEnter2D per rilevare impatti (richiede Rigidbody2D su almeno un oggetto)
+- CompareTag invece di == per performance (no allocazioni stringhe)
+- Ball annuncia eventi, non decide cosa fare (separazione responsabilità)
+- Azzerare velocity lineare+angolare quando si riposiziona un Rigidbody (errore classico se dimenticato)
+- Massa relativa tra oggetti influenza il rinculo nelle collisioni
 
-**Lezioni dagli intoppi:**
-- CapsuleCollider2D NON scala 1:1 visivamente se Transform.Scale != 1 — Size va aggiustata
-- Unity 6 Universal 2D template usa il nuovo Input System di default → InvalidOperationException
-- Verificare sempre i collider con Gizmos in Scene view
-- Leggere e fidarsi dei messaggi di errore: spesso indicano già la soluzione
+**Note sul game feel:**
+- Gameplay ancora grezzo (palla imprevedibile, colpi non precisi) - NORMALE a questo stadio
+- Controllo direzionale del colpo, zone di colpo, assistenza traiettoria: da fare in Fase 2 (game feel)
+- Obiettivo Sessione 4 era "palla fisica funzionante" - raggiunto
 
 **Dove sono bloccato:**
 - Niente
 
-**Prossimo passo - Sessione 4:**
-- Rete vera con BoxCollider2D che blocca i Player a metà campo
-- Limiti laterali al campo (no uscire dai bordi)
-- PALLA: GameObject sprite circolare + Rigidbody2D + CircleCollider2D + PhysicsMaterial2D
-- Script Ball.cs per gestire collisioni e lanciare eventi
-- Setup di reset palla dopo un punto (futuro)
+**Prossimo passo - Sessione 5 (completamento MVP giocabile):**
+- ScoreManager (o estensione GameManager) con punteggio per i 2 lati
+- Nuovo evento OnScoreChanged
+- Ball.OnGroundTouched collegato al punteggio (chi segna quando la palla tocca terra)
+- Reset automatico della palla dopo un punto (chi ha subito serve, o regole volley)
+- HUD primitivo: punteggio a schermo (Canvas + Text)
+- Schermata fine partita (primo a N punti vince)
+- Rimuovere debug R/T da Ball.cs
+- Collegare lo stato Playing/Paused/MatchEnd al gameplay
 
 ## Strategia chat con Claude
 - Una chat per FASE del progetto, non per singola sessione
@@ -149,6 +146,14 @@ pulito, modulare, e fondamenta architetturali solide.
 - Ground check: Physics2D.OverlapCircle con LayerMask "Ground"
 - Configurazione gameplay: tutta in ScriptableObject (PlayerStats), nessun magic number negli script
 - Convention naming asset: PlayerStats_Default, PlayerStats_Speedy (futuri), ecc. (suffisso = variante)
+
+## Decisioni di architettura prese (aggiunte Sessione 4)
+- Geometria di collisione invisibile = GameObject vuoto + Collider (no sprite inutili)
+- Ball usa eventi (OnHitByPlayer, OnGroundTouched, OnNetTouched) - non contiene logica punteggio
+- Lato del campo determinato dalla posizione X rispetto alla rete (X=0)
+- Ball.ResetBall riposiziona e azzera SEMPRE velocity lineare e angolare
+- BallStats in ScriptableObject (coerente con PlayerStats)
+- PhysicsMaterial2D sul Rigidbody (non sul Collider) per fisica consistente della palla
   
 ## Backlog idee future
 *(vuoto per ora, raccoglierà idee che emergono lungo il percorso
