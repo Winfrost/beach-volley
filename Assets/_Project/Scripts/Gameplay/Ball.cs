@@ -142,8 +142,8 @@ namespace BeachVolley.Gameplay
 
             Debug.Log($"[Ball] Reset for {servingPlayer}'s serve at X={xPos}");
         }
-        
-        #if UNITY_EDITOR
+
+#if UNITY_EDITOR
         private void Update()
         {
             // DEBUG: press R to reset ball for Player1's serve, T for Player2's serve
