@@ -39,9 +39,9 @@ Modalità: 1 vs CPU e 2 giocatori sullo stesso schermo.
 Tempistica realistica: 8-12 mesi di calendario al ritmo di 2-4 ore/settimana
 (con possibile aumento delle ore).
 
-## Stato attuale: Fase 1 - Ricostruzione prototipo in Unity (in corso)
-Mini-gameplay fisico: 2 Player + palla che rimbalza + campo con rete e muri.
-Manca: punteggio, reset automatico, HUD, fine partita.
+## Stato attuale: FASE 1 COMPLETATA ✅
+Beach volley giocabile end-to-end: 2 player, palla fisica, punteggio,
+HUD, fine partita, rivincita. Prossima: Fase 2 (game feel + arte + audio + AI + mobile).
 
 ## Prossima Fase: 1 - Ricostruzione prototipo in Unity
 Obiettivo: replicare il gameplay del prototipo HTML in Unity con codice
@@ -69,52 +69,61 @@ pulito, modulare, e fondamenta architetturali solide.
 ## Ultima sessione
 **Data:** [data di oggi]
 
-**Cosa ho fatto - Sessione 4 completa:**
-- Muri laterali invisibili (LeftWall X=-10, RightWall X=10, GameObject vuoti + BoxCollider2D 1x20)
-- Rete resa solida: BoxCollider2D su NetPlaceholder (Player separati nei due lati)
-- Tag "Net" assegnato a NetPlaceholder
-- PALLA creata:
-  - Sprite Circle (Scale 0.6), Sorting Layer Gameplay, Order 1, Tag "Ball"
-  - Rigidbody2D: Dynamic, Mass ~0.35, GravityScale ~1.6, Continuous, no freeze rotation
-  - CircleCollider2D
-  - PhysicsMaterial2D "BallBouncy" (Friction 0.2, Bounciness 0.7) assegnato al Rigidbody
-- ScriptableObject BallStats (serve position, serve velocity, rest velocity) + asset BallStats_Default
-- Script Ball.cs in Gameplay/:
-  - [RequireComponent] Rigidbody2D + CircleCollider2D
-  - OnCollisionEnter2D con CompareTag per Player1/Player2/Ground/Net
-  - 3 eventi: OnHitByPlayer, OnGroundTouched, OnNetTouched
-  - lastTouchedBy + hasBeenTouched (stato per regole volley future)
-  - HandleGroundTouch determina lato campo via transform.position.x < 0
-  - ResetBall(PlayerIndex) azzera velocity lineare+angolare e riposiziona
-  - Debug temporaneo: R resetta serve Player1, T serve Player2 (#if UNITY_EDITOR)
-- Tuning fisica palla fatto giocando in 2
+**Cosa ho fatto - Sessione 5 completa (CHIUSURA FASE 1):**
+- GameManager esteso con punteggio: scorePlayer1/2, pointsToWin (7), NextServer
+- Eventi: OnScoreChanged(int,int), OnMatchEnded(PlayerIndex)
+- Metodi AwardPoint(scoringPlayer) e ResetMatch()
+- Pattern Singleton auto-creating (FindFirstObjectByType + AddComponent se manca)
+- GameplayBootstrap: forza esistenza GameManager + transizione a Playing
+  - Usa coroutine StartMatchWhenReady (aspetta che stato esca da Boot)
+- MatchController (ponte Ball <-> GameManager):
+  - Ascolta Ball.OnGroundTouched, assegna punto all'avversario del lato colpito
+  - Coroutine ResetBallAfterDelay (pausa 1.5s poi reset palla + ritorno a Playing)
+  - Flag isResolvingPoint per evitare punti multipli sui rimbalzi
+  - Ascolta OnStateChanged per resettare flag su rematch (MatchEnd->Playing)
+- HUD: Canvas (Scale With Screen Size, ref 1920x1080) + TextMeshPro
+  - HUDController ascolta OnScoreChanged, aggiorna ScoreText
+- Schermata vittoria: WinPanel (disattivo all'avvio) + WinnerText + RematchButton
+  - WinScreenController ascolta OnMatchEnded, mostra pannello + nome vincitore
+  - Pulsante RIVINCITA: ResetMatch + ChangeState(Playing) + ResetBall
+- Rimosso debug R/T dalla Ball
 
 **Pattern imparati:**
-- PhysicsMaterial2D (Friction + Bounciness) per superfici/oggetti
-- GameObject vuoto + Collider per geometria di collisione invisibile (muri)
-- OnCollisionEnter2D per rilevare impatti (richiede Rigidbody2D su almeno un oggetto)
-- CompareTag invece di == per performance (no allocazioni stringhe)
-- Ball annuncia eventi, non decide cosa fare (separazione responsabilità)
-- Azzerare velocity lineare+angolare quando si riposiziona un Rigidbody (errore classico se dimenticato)
-- Massa relativa tra oggetti influenza il rinculo nelle collisioni
+- Coroutine (IEnumerator + yield return null / WaitForSeconds) - timer e attese
+- Programmazione robusta: "aspetta condizione" invece di "assumi ordine esecuzione"
+- Singleton lazy auto-creating + bootstrapper per inizializzazione esplicita
+- Pattern "ponte" (MatchController) per disaccoppiare oggetti di gioco e logica
+- UI Unity: Canvas, RectTransform (box) vs Alignment (testo nel box) vs Wrapping
+- Button.onClick.AddListener (observer integrato Unity)
+- SetActive per mostrare/nascondere GameObject
 
-**Note sul game feel:**
-- Gameplay ancora grezzo (palla imprevedibile, colpi non precisi) - NORMALE a questo stadio
-- Controllo direzionale del colpo, zone di colpo, assistenza traiettoria: da fare in Fase 2 (game feel)
-- Obiettivo Sessione 4 era "palla fisica funzionante" - raggiunto
+**Lezioni dagli intoppi:**
+- Singleton lazy non si avvia se nessuno lo invoca -> serve bootstrapper
+- Ordine Awake/Start: leggere stato altrui solo nel proprio Start (non Awake)
+- Flag di stato vanno resettati su TUTTI i percorsi di uscita (bug rematch:
+  isResolvingPoint restava true se il punto finiva la partita -> coroutine non partiva)
+- UI testo: box stretto = testo va a capo. Stretch RectTransform + wrapping off
+- RectTransform posiziona il box, Alignment posiziona il testo dentro il box
 
 **Dove sono bloccato:**
-- Niente
+- Niente. Fase 1 completa e funzionante.
 
-**Prossimo passo - Sessione 5 (completamento MVP giocabile):**
-- ScoreManager (o estensione GameManager) con punteggio per i 2 lati
-- Nuovo evento OnScoreChanged
-- Ball.OnGroundTouched collegato al punteggio (chi segna quando la palla tocca terra)
-- Reset automatico della palla dopo un punto (chi ha subito serve, o regole volley)
-- HUD primitivo: punteggio a schermo (Canvas + Text)
-- Schermata fine partita (primo a N punti vince)
-- Rimuovere debug R/T da Ball.cs
-- Collegare lo stato Playing/Paused/MatchEnd al gameplay
+**FASE 1 COMPLETATA - Riepilogo del gioco attuale:**
+- Movimento e salto 2 player (tastiera: frecce+Spazio / WASD)
+- Palla con fisica bouncy, collisioni, eventi
+- Campo: rete + muri laterali + terreno
+- Punteggio fino a 7, reset palla dopo ogni punto
+- HUD punteggio a schermo
+- Schermata vittoria + rivincita funzionante
+- Tutto via eventi, architettura disaccoppiata
+
+**Prossimo passo - FASE 2 (il gioco da "funzionale" a "bello"):**
+Da decidere l'ordine, opzioni:
+- Game feel: controllo direzionale del colpo, screen shake, squash/stretch, hit-stop
+- Arte: pixel art per player, palla, sfondo (sostituire i placeholder)
+- Audio: musica + SFX (rimbalzo, salto, punto, vittoria)
+- AI: CPU controller per modalità 1 giocatore
+- Mobile: migrazione al nuovo Input System + controlli touch
 
 ## Strategia chat con Claude
 - Una chat per FASE del progetto, non per singola sessione
@@ -154,6 +163,17 @@ pulito, modulare, e fondamenta architetturali solide.
 - Ball.ResetBall riposiziona e azzera SEMPRE velocity lineare e angolare
 - BallStats in ScriptableObject (coerente con PlayerStats)
 - PhysicsMaterial2D sul Rigidbody (non sul Collider) per fisica consistente della palla
+
+## Decisioni di architettura prese (aggiunte Sessione 5)
+- Punteggio dentro GameManager (non ScoreManager separato) - scope semplice
+- Singleton auto-creating (lazy) + GameplayBootstrap per init esplicita nelle scene
+- MatchController come "ponte" tra Ball (gameplay) e GameManager (logica match)
+- Regola punteggio MVP: palla a terra -> punto all'avversario del lato colpito
+- Chi perde il punto serve dopo (NextServer)
+- Pausa 1.5s dopo ogni punto prima del reset palla (game feel/leggibilità)
+- Canvas Scale With Screen Size + ref 1920x1080 per adattamento mobile
+- Win screen via SetActive del pannello, non scene separata
+- Flag di stato critici (isResolvingPoint) resettati su tutti i percorsi di uscita
   
 ## Backlog idee future
 *(vuoto per ora, raccoglierà idee che emergono lungo il percorso
