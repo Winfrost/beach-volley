@@ -32,6 +32,12 @@ namespace BeachVolley.Core
             {
                 Debug.LogError("[MatchController] Ball reference not assigned!", this);
             }
+
+            // Subscribe to state changes to reset our flag when play (re)starts
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.OnStateChanged += HandleStateChanged;
+            }
         }
 
         private void OnDisable()
@@ -39,6 +45,22 @@ namespace BeachVolley.Core
             if (ball != null)
             {
                 ball.OnGroundTouched -= HandleGroundTouched;
+            }
+
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.OnStateChanged -= HandleStateChanged;
+            }
+        }
+
+        private void HandleStateChanged(GameState previous, GameState current)
+        {
+            // When we (re)enter Playing from anywhere that isn't a normal point flow,
+            // make sure we're ready to resolve the next point.
+            // In particular: after a rematch (MatchEnd -> Playing), reset the flag.
+            if (current == GameState.Playing && previous == GameState.MatchEnd)
+            {
+                isResolvingPoint = false;
             }
         }
 
@@ -70,6 +92,12 @@ namespace BeachVolley.Core
             if (GameManager.Instance.CurrentState == GameState.PointScored)
             {
                 StartCoroutine(ResetBallAfterDelay());
+            }
+            else
+            {
+                // Match ended (MatchEnd state). No reset needed, but clear the flag
+                // so a future rematch starts clean.
+                isResolvingPoint = false;
             }
         }
 
