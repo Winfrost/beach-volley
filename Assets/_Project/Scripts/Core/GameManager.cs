@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using BeachVolley.Gameplay;
 
 namespace BeachVolley.Core
 {
@@ -14,7 +15,29 @@ namespace BeachVolley.Core
         // SINGLETON
         // ============================================================
 
-        public static GameManager Instance { get; private set; }
+        private static GameManager instance;
+
+        public static GameManager Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    // Try to find an existing one in the scene
+                    instance = FindFirstObjectByType<GameManager>();
+
+                    // If none exists, create one automatically
+                    if (instance == null)
+                    {
+                        GameObject go = new GameObject("GameManager (Auto-Created)");
+                        instance = go.AddComponent<GameManager>();
+                        Debug.Log("[GameManager] Auto-created because none existed in scene.");
+                    }
+                }
+                return instance;
+            }
+            private set => instance = value;
+        }
 
         // ============================================================
         // STATE MACHINE
@@ -31,13 +54,44 @@ namespace BeachVolley.Core
         public event Action<GameState, GameState> OnStateChanged;
 
         // ============================================================
+        // SCORE
+        // ============================================================
+
+        [Header("Match Settings")]
+        [Tooltip("Points needed to win the match.")]
+        [SerializeField] private int pointsToWin = 7;
+
+        [Header("Score (read-only at runtime)")]
+        [SerializeField] private int scorePlayer1 = 0;
+        [SerializeField] private int scorePlayer2 = 0;
+
+        public int ScorePlayer1 => scorePlayer1;
+        public int ScorePlayer2 => scorePlayer2;
+        public int PointsToWin => pointsToWin;
+
+        /// <summary>
+        /// Raised whenever the score changes. Parameters: (scoreP1, scoreP2).
+        /// </summary>
+        public event Action<int, int> OnScoreChanged;
+
+        /// <summary>
+        /// Raised when the match ends. Parameter: the winning player.
+        /// </summary>
+        public event Action<PlayerIndex> OnMatchEnded;
+
+        /// <summary>
+        /// Which player serves next. Set after each point.
+        /// </summary>
+        public PlayerIndex NextServer { get; private set; } = PlayerIndex.Player1;
+
+        // ============================================================
         // UNITY LIFECYCLE
         // ============================================================
 
         private void Awake()
         {
             // Singleton enforcement: only one instance allowed
-            if (Instance != null && Instance != this)
+            if (instance != null && instance != this)
             {
                 Debug.LogWarning("[GameManager] Duplicate instance detected, destroying.");
                 Destroy(gameObject);
@@ -66,9 +120,9 @@ namespace BeachVolley.Core
 
         private void OnDestroy()
         {
-            if (Instance == this)
+            if (instance == this)
             {
-                Instance = null;
+                instance = null;
             }
         }
 
@@ -149,5 +203,68 @@ namespace BeachVolley.Core
                     return false;
             }
         }
+
+        // ============================================================
+        // SCORE LOGIC
+        // ============================================================
+
+        /// <summary>
+        /// Awards a point to the specified player and handles match-end detection.
+        /// </summary>
+        public void AwardPoint(PlayerIndex scoringPlayer)
+        {
+            // Only award points during active play
+            if (CurrentState != GameState.Playing && CurrentState != GameState.PointScored)
+            {
+                Debug.LogWarning($"[GameManager] AwardPoint called in state {CurrentState}, ignoring.");
+                return;
+            }
+
+            if (scoringPlayer == PlayerIndex.Player1)
+                scorePlayer1++;
+            else
+                scorePlayer2++;
+
+            // The player who LOST the point serves next (standard volleyball-ish rule for our MVP)
+            NextServer = scoringPlayer == PlayerIndex.Player1
+                ? PlayerIndex.Player2
+                : PlayerIndex.Player1;
+
+            Debug.Log($"[GameManager] Point to {scoringPlayer}. Score: {scorePlayer1} - {scorePlayer2}");
+
+            OnScoreChanged?.Invoke(scorePlayer1, scorePlayer2);
+
+            // Check for match end
+            if (scorePlayer1 >= pointsToWin || scorePlayer2 >= pointsToWin)
+            {
+                PlayerIndex winner = scorePlayer1 >= pointsToWin
+                    ? PlayerIndex.Player1
+                    : PlayerIndex.Player2;
+
+                Debug.Log($"[GameManager] Match ended. Winner: {winner}");
+                ChangeState(GameState.MatchEnd);
+                OnMatchEnded?.Invoke(winner);
+            }
+            else
+            {
+                // Brief "point scored" state before resuming play
+                ChangeState(GameState.PointScored);
+            }
+        }
+
+        /// <summary>
+        /// Resets the score and starts a new match.
+        /// </summary>
+        public void ResetMatch()
+        {
+            scorePlayer1 = 0;
+            scorePlayer2 = 0;
+            NextServer = PlayerIndex.Player1;
+
+            OnScoreChanged?.Invoke(scorePlayer1, scorePlayer2);
+
+            Debug.Log("[GameManager] Match reset.");
+        }
+
     }
 }
