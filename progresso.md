@@ -67,7 +67,7 @@ pulito, modulare, e fondamenta architetturali solide.
 - [ ] Progetto Test creato in Unity per verifica finale
 
 ## Ultima sessione
-**Data:** [data di oggi]
+**Data:** [28/05/2026]
 
 **Cosa ho fatto - Sessione 5 completa (CHIUSURA FASE 1):**
 - GameManager esteso con punteggio: scorePlayer1/2, pointsToWin (7), NextServer
@@ -174,6 +174,37 @@ Da decidere l'ordine, opzioni:
 - Canvas Scale With Screen Size + ref 1920x1080 per adattamento mobile
 - Win screen via SetActive del pannello, non scene separata
 - Flag di stato critici (isResolvingPoint) resettati su tutti i percorsi di uscita
+
+## Decisioni di architettura prese (aggiunte Sessione 6)
+- Colpo direzionale: modello "combinato" (punto di contatto + velocità player)
+- Punto di contatto normalizzato su collider.bounds.extents.x (indipendente da sprite/scala)
+- Ball legge la velocità del player da collision.rigidbody (no dipendenza da PlayerStats)
+- aim in [-1,+1] -> angolo da verticale = aim * maxHitAngle; dir = (sin, cos) -> palla sempre verso l'alto
+- Colpo sostituisce il rimbalzo fisico (rb.linearVelocity diretto); PhysicsMaterial2D solo per muri/terreno/rete
+- Parametri colpo in BallStats: hitForce, maxHitAngle, playerVelocityInfluence (niente magic numbers)
+- ApplyHitDirection tenuto in Ball (coesione: fisica della palla); estraibile in BallHitResolver se serve
+- Rimosso debug R/T Update da Ball (residuo da Sessione 5)
+
+## Decisioni di architettura prese (aggiunte Sessione 6 - game feel)
+- Pattern "fisica sulla radice, grafica su figlio": Ball root tiene Rigidbody2D +
+  CircleCollider2D + Ball.cs; figlio "Visual" tiene SpriteRenderer (+ feedback visivo)
+- Motivo: la scala del visual va animata liberamente senza mai toccare il collider
+- BallSquashStretch: componente puramente reattivo, si iscrive a OnGroundTouched/
+  OnHitByPlayer/OnNetTouched, anima localScale del figlio (snap + recover via coroutine)
+- Squash ad assi fissi (no rotazioni): terra = appiattisce, colpo = allunga, rete = stringe
+- Parametri squash come [SerializeField] sul componente (promuovibili a BallStats se servono varianti)
+- Recover con AnimationCurve (overshoot tarabile a mano nell'Inspector)
+- OnDisable ferma la coroutine e ripristina la scala (no stato visivo bloccato)
+- Zero modifiche a Ball.cs: primo "juicer" che conferma l'architettura a eventi
+
+## Decisioni di architettura prese (aggiunte Sessione 6 - screen shake)
+- Separazione meccanismo/policy per il feedback di camera:
+  - CameraShake = meccanismo (HOW): Shake(intensity), offset decrescente in LateUpdate, game-agnostic
+  - GameplayShakeTrigger = policy (WHEN/HOW-HARD): ascolta eventi Ball, sceglie le intensità
+- CameraShake è singleton SCOPED SULLA SCENA (no DontDestroyOnLoad, diverso da GameManager)
+- Intensità per tipo di evento (colpo leggero, palla a terra forte); scaling per potenza reale rimandato a quando esisterà la schiacciata
+- Zero modifiche a Ball.cs (secondo juicer event-driven)
+- Nota: shake su localPosition assume camera statica; con camera-follow andrà su un transform figlio
   
 ## Backlog idee future
 *(vuoto per ora, raccoglierà idee che emergono lungo il percorso
