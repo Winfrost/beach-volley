@@ -215,6 +215,21 @@ Da decidere l'ordine, opzioni:
 - Conferma del design temporale: squash e shake usano Time.deltaTime apposta, così si
   congelano/persistono in modo coerente durante il freeze (zero modifiche a Ball/CameraShake/squash)
   
+## Decisioni di architettura prese (aggiunte Sessione 6 - particelle)
+- Niente meccanismo custom: il ParticleSystem di Unity È il meccanismo
+- ImpactParticleTrigger = sola policy: posiziona il sistema sul punto d'impatto e replay del burst
+- Posizione letta da ball.transform.position nell'handler (nessuna modifica agli eventi/Ball)
+- Requisiti sui ParticleSystem: Simulation Space = World, Play On Awake = OFF, Looping = OFF, Burst singolo
+- FX_SandPuff (terra) e FX_HitSpark (colpo), un GameObject ciascuno sotto padre "FX"
+  
+## Decisioni di architettura prese (aggiunte Sessione 6 - consolidamento)
+- Le tre policy di scena (shake, hit-stop, particelle) unite in un unico coordinatore ImpactFeedback
+- Si iscrive UNA volta agli eventi Ball; config raggruppata per evento (hit / ground), non per effetto
+- Smista ai meccanismi via singleton (CameraShake, HitStop) e referenze ai ParticleSystem
+- Meccanismi invariati; BallSquashStretch resta separato (grafica locale della palla, non policy di scena)
+- Rimossi: GameplayShakeTrigger, HitStopTrigger, ImpactParticleTrigger
+- Motivazione: una sola sottoscrizione, un solo posto che descrive la risposta a ogni evento; pronto per l'audio
+
 ## Backlog idee future
 *(vuoto per ora, raccoglierà idee che emergono lungo il percorso
 ma che NON vanno implementate subito)*

@@ -6243,10 +6243,8 @@ GameObject:
   - component: {fileID: 1049685924}
   - component: {fileID: 1049685927}
   - component: {fileID: 1049685928}
-  - component: {fileID: 1049685929}
   - component: {fileID: 1049685931}
-  - component: {fileID: 1049685930}
-  - component: {fileID: 1049685932}
+  - component: {fileID: 1049685933}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -6386,36 +6384,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BeachVolley.Presentation.CameraShake
   damping: 3
   maxOffset: 0.35
---- !u!114 &1049685929
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1049685923}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0678659dffed004b89d93db9e1e4b8d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BeachVolley.Presentation.GameplayShakeTrigger
-  ball: {fileID: 0}
-  hitShake: 0.25
-  groundShake: 0.6
---- !u!114 &1049685930
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1049685923}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 819b2997d62eb5a489f049568ab97f59, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BeachVolley.Presentation.HitStopTrigger
-  ball: {fileID: 0}
-  groundFreeze: 0.06
-  hitFreeze: 0
 --- !u!114 &1049685931
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6428,7 +6396,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 142773d2684ff5848adf48d666003f78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BeachVolley.Presentation.HitStop
---- !u!114 &1049685932
+--- !u!114 &1049685933
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -6437,12 +6405,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 1049685923}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c39ae0131dfa8154983fc0a30f53a239, type: 3}
+  m_Script: {fileID: 11500000, guid: 06f336a9c80c5504cb0599b7b562f830, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BeachVolley.Presentation.ImpactParticleTrigger
+  m_EditorClassIdentifier: Assembly-CSharp::BeachVolley.Presentation.ImpactFeedback
   ball: {fileID: 0}
-  sandPuff: {fileID: 1230280411}
+  hitShake: 0.25
+  hitFreeze: 0
   hitSpark: {fileID: 851293990}
+  groundShake: 0.6
+  groundFreeze: 0.06
+  sandPuff: {fileID: 1230280411}
 --- !u!1 &1094565162
 GameObject:
   m_ObjectHideFlags: 0
