@@ -205,6 +205,15 @@ Da decidere l'ordine, opzioni:
 - Intensità per tipo di evento (colpo leggero, palla a terra forte); scaling per potenza reale rimandato a quando esisterà la schiacciata
 - Zero modifiche a Ball.cs (secondo juicer event-driven)
 - Nota: shake su localPosition assume camera statica; con camera-follow andrà su un transform figlio
+
+## Decisioni di architettura prese (aggiunte Sessione 6 - hit-stop)
+- HitStop = meccanismo (HOW): Time.timeScale=0 per N secondi REALI, poi ripristino
+  - WaitForSecondsRealtime perché WaitForSeconds (scaled) si bloccherebbe a timeScale 0
+  - OnDestroy ripristina timeScale a 1 (safety: stato globale resettato su ogni uscita)
+  - Nota: con un futuro menu pausa, la pausa possiede timeScale e l'hit-stop va soppresso
+- HitStopTrigger = policy (WHEN): freeze solo sulla palla a terra; hitFreeze esposto ma default 0
+- Conferma del design temporale: squash e shake usano Time.deltaTime apposta, così si
+  congelano/persistono in modo coerente durante il freeze (zero modifiche a Ball/CameraShake/squash)
   
 ## Backlog idee future
 *(vuoto per ora, raccoglierà idee che emergono lungo il percorso
