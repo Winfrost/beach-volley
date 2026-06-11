@@ -268,6 +268,20 @@ Da decidere l'ordine, opzioni:
 - Sorting Layer giocatori = Gameplay (palla davanti, su layer Ball)
 - Tinta usata correttamente qui (squadra), al contrario della palla (colori reali da preservare)
 
+## Lezione (Sessione 7) - scala dei placeholder
+- Player aveva Scale (5, -3.5) ereditata dai rettangoli placeholder: causa-radice di
+  pixel distorti, offset/Y invertiti, piedi nella sabbia e ground check fuori posto
+- Fix: Transform a Scale (1,1,1); dimensione data dai PIXEL dello sprite a PPU 25, non dalla scala
+- Collider e offset SEMPRE in unità reali (Size x Scale); a scala 1 "1 unità = 1 unità"
+- Valori finali: Player Pos Y -3.55, Capsule Size (0.9, 1.9), groundCheckOffsetY -0.95
+- Ground: Pos Y -5, Scale 20x1, collider 1x1 -> bordo superiore a -4.5 (superficie sabbia)
+- Regola generale: normalizzare la scala a 1 PRIMA di lavorare con la pixel art
+
+## Lezione (Sessione 7) - reimport e riferimenti sprite
+- Cambiare Preset/PPU forza il reimport: se lo sprite cambia identità (es. Single<->Multiple),
+  i SpriteRenderer perdono il riferimento e diventano invisibili (campo Sprite svuotato)
+- Fix: riassegnare gli sprite. Dopo reimport massivi, verificare sempre i SpriteRenderer
+
 ## Backlog idee future
 *(vuoto per ora, raccoglierà idee che emergono lungo il percorso
 ma che NON vanno implementate subito)*
