@@ -253,6 +253,21 @@ Da decidere l'ordine, opzioni:
   palla->Ball; particelle->FX (via modulo Renderer del Particle System, NON SpriteRenderer)
 - Order in Layer solo per ordini fini dentro lo stesso layer (es. campo 0, rete 10)
 
+## Decisioni di architettura prese (aggiunte Sessione 7 - validazione pipeline)
+- Primo sprite reale: palla placeholder 16x16 px nativi (beach ball colorato)
+- A PPU 25 -> 0.64u di diametro; sprite assegnato al figlio Visual (NON alla radice fisica)
+- Sorting Layer della palla = Ball; pipeline pixel-perfect validato su singolo oggetto
+- Sprite della palla deformato correttamente da BallSquashStretch (conferma separazione fisica/visual)
+- Da decidere: disaccoppiare rotazione visiva dalla fisica se lo spin della pixel art "luccica"
+
+## Decisioni di architettura prese (aggiunte Sessione 7 - sprite giocatore)
+- Player placeholder 24x48 px nativi, neutro e tintabile (Color del SpriteRenderer: P1 rosso, P2 blu)
+- Pivot = Center per allinearsi a fisica esistente (transform al centro, ground check a -0.95)
+  48px @ PPU25 = 1.92u -> piedi a -0.96 ~ groundCheckOffsetY -0.95 (nessun ritocco fisico)
+- Sprite sul SpriteRenderer del root (no figlio Visual finché il player non avrà squash/animazioni)
+- Sorting Layer giocatori = Gameplay (palla davanti, su layer Ball)
+- Tinta usata correttamente qui (squadra), al contrario della palla (colori reali da preservare)
+
 ## Backlog idee future
 *(vuoto per ora, raccoglierà idee che emergono lungo il percorso
 ma che NON vanno implementate subito)*
