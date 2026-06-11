@@ -230,6 +230,29 @@ Da decidere l'ordine, opzioni:
 - Rimossi: GameplayShakeTrigger, HitStopTrigger, ImpactParticleTrigger
 - Motivazione: una sola sottoscrizione, un solo posto che descrive la risposta a ogni evento; pronto per l'audio
 
+## Decisioni di architettura prese (aggiunte Sessione 6 - audio SFX)
+- SfxPlayer = meccanismo (HOW): AudioSource + PlayOneShot (i suoni si sovrappongono, non si tagliano)
+  - Singleton scoped sulla scena, come CameraShake/HitStop
+  - Audio non influenzato da Time.timeScale: il suono dell'impatto si sente durante l'hit-stop
+- Clip referenziate in ImpactFeedback (la policy decide QUALE suono per QUALE evento)
+- Aggiunto hitSound/pointSound + dispatch PlaySound nei due handler: nessun nuovo componente/sottoscrizione
+- Payoff del consolidamento: l'audio è entrato con ~poche righe dentro il coordinatore esistente
+- SFX segnaposto generati con Bfxr/ChipTone (coerenti con estetica pixel; musica resta Fase 4)
+
+## Decisioni di architettura prese (aggiunte Sessione 7 - fondamenta pixel art)
+- Sorting Layers: PARTITI da quelli già esistenti (Default, Background, Midground,
+  Gameplay, Foreground, UI), NON ricreati da zero
+- Aggiunti Ball (tra Gameplay e Foreground) e FX (tra Foreground e UI) per blindare
+  l'ordine palla-vs-giocatori e tenere le particelle sopra l'azione [se scegli opzione B]
+- Order in Layer usato solo per ordini fini dentro lo stesso layer
+
+## Decisioni di architettura prese (aggiunte Sessione 7 - fondamenta pixel art)
+- Sorting Layers: partiti dagli esistenti, aggiunti Ball e FX (opzione B)
+  Ordine finale: Default, Background, Midground, Gameplay, Ball, Foreground, FX, UI
+- Assegnazione: sfondo->Background; sabbia+rete->Midground; giocatori->Gameplay;
+  palla->Ball; particelle->FX (via modulo Renderer del Particle System, NON SpriteRenderer)
+- Order in Layer solo per ordini fini dentro lo stesso layer (es. campo 0, rete 10)
+
 ## Backlog idee future
 *(vuoto per ora, raccoglierà idee che emergono lungo il percorso
 ma che NON vanno implementate subito)*

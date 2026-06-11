@@ -55,8 +55,14 @@ TagManager:
   - name: Gameplay
     uniqueID: 2986150927
     locked: 0
+  - name: Ball
+    uniqueID: 191358881
+    locked: 0
   - name: Foreground
     uniqueID: 2165043501
+    locked: 0
+  - name: FX
+    uniqueID: 3214579627
     locked: 0
   - name: UI
     uniqueID: 1685040611
