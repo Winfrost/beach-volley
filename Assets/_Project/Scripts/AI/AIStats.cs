@@ -14,6 +14,18 @@ namespace BeachVolley.AI
         [Range(0.02f, 0.5f)]
         public float chaseDeadzone = 0.12f;
 
+        [Header("Prediction")]
+        [Tooltip("If on, the CPU moves to where the ball WILL be (ballistic), not where it is now.")]
+        public bool usePrediction = true;
+
+        [Tooltip("Height above the player's centre at which the CPU aims to intercept the ball.")]
+        [Range(0f, 3f)]
+        public float interceptHeight = 1f;
+
+        [Tooltip("Ignore predictions further than this many seconds into the future.")]
+        [Range(0.5f, 5f)]
+        public float maxPredictTime = 3f;
+
         [Header("Hitting")]
         [Tooltip("Horizontal distance within which the CPU attempts to jump and hit the ball.")]
         [Range(0.2f, 1.5f)]

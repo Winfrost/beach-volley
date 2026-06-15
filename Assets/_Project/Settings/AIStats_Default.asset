@@ -13,6 +13,9 @@ MonoBehaviour:
   m_Name: AIStats_Default
   m_EditorClassIdentifier: Assembly-CSharp::BeachVolley.AI.AIStats
   chaseDeadzone: 0.12
+  usePrediction: 0
+  interceptHeight: 1
+  maxPredictTime: 3
   hitReachX: 0.7
   jumpTriggerHeight: 2.5
   jumpCooldown: 0.4

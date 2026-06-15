@@ -312,6 +312,24 @@ Da decidere l'ordine, opzioni:
 - Selezione sorgente per piattaforma/modalità: a mano per ora, automatica con i menu (Fase 3)
 - Tutte e tre le sorgenti (Keyboard/AI/Touch) ora implementano IPlayerInput: astrazione completa
 
+## Decisioni di architettura prese (aggiunte Sessione 8 - predizione CPU)
+- AIPlayerInput ora prevede l'intercetto balistico: risolve y(t)=altezza_intercetto per il moto
+  del proiettile (gravità effettiva = Physics2D.gravity.y * ballRb.gravityScale), poi X(t)
+- La CPU si muove verso la X prevista, non quella attuale -> arriva in tempo sulle palle veloci
+- Previsione ricalcolata ogni frame: ignora i rimbalzi nel calcolo ma si auto-corregge dopo ognuno
+- Salto basato sulla posizione REALE (vicinanza), previsione solo per il posizionamento
+- AIStats: usePrediction (test A/B), interceptHeight, maxPredictTime
+- Limiti residui: no rimbalzi sui muri nella predizione, nessuna mira deliberata
+
+## Decisioni di architettura prese (aggiunte Sessione 8 - animazione giocatori)
+- Animazione via SpriteAnimator code-driven (Presentation): cicla array di frame singoli
+  per stato idle/walk/air, stato dedotto dalla velocità del Rigidbody2D del padre
+- Scelta: niente Animator a stati né sprite-sheet da affettare (evita il bug Multiple); frame Single
+- Introdotto il figlio Visual del giocatore (pattern della palla): SpriteRenderer + SpriteAnimator
+  sul figlio a local (0,0,0) scala 1 -> allineamento invariato, nessun ritocco a collider/ground check
+- flipX per facing pronto per arte di profilo; frame placeholder (arte vera da Aseprite poi)
+- Nota: posa "aria" può saltare 1 frame all'apice (vy~0); si risolverà con stato grounded dal controller
+
 ## Backlog idee future
 *(vuoto per ora, raccoglierà idee che emergono lungo il percorso
 ma che NON vanno implementate subito)*
