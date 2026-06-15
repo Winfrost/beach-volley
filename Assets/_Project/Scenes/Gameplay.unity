@@ -12182,10 +12182,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1633589701}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f6e197881a0de7547b24ca8059eddb0a, type: 3}
+  m_Script: {fileID: 11500000, guid: f7ad80898e566014c8d73a0a29ec90f7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BeachVolley.Gameplay.KeyboardPlayerInput
-  scheme: 1
+  m_EditorClassIdentifier: Assembly-CSharp::BeachVolley.AI.AIPlayerInput
+  stats: {fileID: 11400000, guid: 055efa9b34899064b95b81df62ed4d95, type: 2}
+  ball: {fileID: 0}
 --- !u!1 &1665325333
 GameObject:
   m_ObjectHideFlags: 0

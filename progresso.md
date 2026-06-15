@@ -293,6 +293,16 @@ Da decidere l'ordine, opzioni:
 - Nota: jump buffering disponibile come opt-in (invertire operandi in HandleJump)
 - Refactor a comportamento invariato (2 giocatori tastiera identici a prima)
 
+## Decisioni di architettura prese (aggiunte Sessione 8 - AI / CPU)
+- AIPlayerInput implementa IPlayerInput (in Scripts/AI): la CPU è una sorgente di input come la tastiera
+- PlayerController invariato: modalità 1P = sostituire KeyboardPlayerInput con AIPlayerInput su Player2
+- Logica v1: insegue ball.x sulla propria metà (else torna a homeX); salta quando la palla è
+  sopra, entro hitReachX e jumpTriggerHeight; jumpCooldown anti-rimbalzo
+- mySign/homeX catturati all'Awake (lato campo dal segno della X di spawn, rete a X=0)
+- Config in AIStats (ScriptableObject); difficoltà anche via PlayerStats_CPU separato (moveSpeed)
+- Limiti noti v1 (upgrade futuri): nessuna PREDIZIONE traiettoria, reattiva (no anticipazione), nessuna MIRA
+- Regola: un solo componente IPlayerInput per giocatore
+
 ## Backlog idee future
 *(vuoto per ora, raccoglierà idee che emergono lungo il percorso
 ma che NON vanno implementate subito)*
