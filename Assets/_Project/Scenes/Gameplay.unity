@@ -872,6 +872,7 @@ GameObject:
   - component: {fileID: 718464311}
   - component: {fileID: 718464312}
   - component: {fileID: 718464313}
+  - component: {fileID: 718464314}
   m_Layer: 0
   m_Name: 'Player1 '
   m_TagString: Player1
@@ -1030,10 +1031,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BeachVolley.Gameplay.PlayerController
   stats: {fileID: 11400000, guid: e06476365cdbcda479aa45f01ff5829f, type: 2}
-  playerIndex: 0
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
+--- !u!114 &718464314
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 718464308}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6e197881a0de7547b24ca8059eddb0a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BeachVolley.Gameplay.KeyboardPlayerInput
+  scheme: 0
 --- !u!1 &851293987
 GameObject:
   m_ObjectHideFlags: 0
@@ -11998,6 +12011,7 @@ GameObject:
   - component: {fileID: 1633589705}
   - component: {fileID: 1633589704}
   - component: {fileID: 1633589703}
+  - component: {fileID: 1633589707}
   m_Layer: 0
   m_Name: Player2
   m_TagString: Player2
@@ -12033,7 +12047,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BeachVolley.Gameplay.PlayerController
   stats: {fileID: 11400000, guid: e06476365cdbcda479aa45f01ff5829f, type: 2}
-  playerIndex: 1
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
@@ -12160,6 +12173,19 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!114 &1633589707
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1633589701}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6e197881a0de7547b24ca8059eddb0a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BeachVolley.Gameplay.KeyboardPlayerInput
+  scheme: 1
 --- !u!1 &1665325333
 GameObject:
   m_ObjectHideFlags: 0

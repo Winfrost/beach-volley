@@ -282,6 +282,17 @@ Da decidere l'ordine, opzioni:
   i SpriteRenderer perdono il riferimento e diventano invisibili (campo Sprite svuotato)
 - Fix: riassegnare gli sprite. Dopo reimport massivi, verificare sempre i SpriteRenderer
 
+## Decisioni di architettura prese (aggiunte Sessione 8 - astrazione input)
+- Introdotta IPlayerInput: interfaccia per la "sorgente di intenzione" del giocatore
+  (Tick, Horizontal, JumpHeld, ConsumeJumpPressed) - in Scripts/Gameplay
+- PlayerController NON legge più la tastiera: ottiene IPlayerInput via GetComponent e ne legge l'intento
+  Separazione meccanismo (movimento/salto = controller) / policy (sorgente input)
+- KeyboardPlayerInput implementa IPlayerInput; lo schema tasti (P1/P2) migrato qui dal controller
+- Stessa interfaccia abiliterà AIPlayerInput (prossimo) e TouchPlayerInput (fase mobile) senza toccare il controller
+- Edge del salto bufferizzato nella sorgente (jumpQueued) + ConsumeJumpPressed: ordine-indipendente
+- Nota: jump buffering disponibile come opt-in (invertire operandi in HandleJump)
+- Refactor a comportamento invariato (2 giocatori tastiera identici a prima)
+
 ## Backlog idee future
 *(vuoto per ora, raccoglierà idee che emergono lungo il percorso
 ma che NON vanno implementate subito)*
