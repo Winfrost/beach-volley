@@ -71,6 +71,21 @@ namespace BeachVolley.Gameplay
         }
 
         // ============================================================
+        // STATS INJECTION
+        // ============================================================
+
+        /// <summary>
+        /// Swap the PlayerStats this controller reads. Because every stat value is read
+        /// live (never cached), the change takes effect on the next physics step.
+        /// Called by PlayerCharacter when a CharacterDefinition is applied.
+        /// </summary>
+        public void SetStats(PlayerStats newStats)
+        {
+            if (newStats == null) return;
+            stats = newStats;
+        }
+
+        // ============================================================
         // GROUND CHECK
         // ============================================================
 

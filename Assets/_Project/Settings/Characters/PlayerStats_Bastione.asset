@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8fcac6ea3165832468c7f5cb610054d5, type: 3}
+  m_Name: PlayerStats_Bastione
+  m_EditorClassIdentifier: Assembly-CSharp::BeachVolley.Gameplay.PlayerStats
+  moveSpeed: 5
+  jumpForce: 7
+  fallGravityMultiplier: 3
+  lowJumpMultiplier: 2.5
+  groundCheckRadius: 0.15
+  groundCheckOffsetY: -0.95

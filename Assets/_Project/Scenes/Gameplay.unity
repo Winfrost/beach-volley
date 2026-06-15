@@ -960,6 +960,7 @@ GameObject:
   - component: {fileID: 718464312}
   - component: {fileID: 718464313}
   - component: {fileID: 718464314}
+  - component: {fileID: 718464315}
   m_Layer: 0
   m_Name: 'Player1 '
   m_TagString: Player1
@@ -1076,6 +1077,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BeachVolley.Gameplay.KeyboardPlayerInput
   scheme: 0
+--- !u!114 &718464315
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 718464308}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 44f4ce94300d284479e05f9ff987124e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BeachVolley.Content.PlayerCharacter
 --- !u!1 &851293987
 GameObject:
   m_ObjectHideFlags: 0
@@ -12220,6 +12233,7 @@ GameObject:
   - component: {fileID: 1633589704}
   - component: {fileID: 1633589703}
   - component: {fileID: 1633589707}
+  - component: {fileID: 1633589708}
   m_Layer: 0
   m_Name: Player2
   m_TagString: Player2
@@ -12395,6 +12409,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BeachVolley.AI.AIPlayerInput
   stats: {fileID: 11400000, guid: 055efa9b34899064b95b81df62ed4d95, type: 2}
   ball: {fileID: 0}
+--- !u!114 &1633589708
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1633589701}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 44f4ce94300d284479e05f9ff987124e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BeachVolley.Content.PlayerCharacter
 --- !u!1 &1665325333
 GameObject:
   m_ObjectHideFlags: 0
@@ -12504,6 +12530,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b8ea83b79c121e4a9551ef550d080b6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BeachVolley.Core.GameplayBootstrap
+  player1: {fileID: 718464315}
+  player2: {fileID: 1633589708}
+  player1Character: {fileID: 11400000, guid: 8fd6860ce91714141bb11d81241b20e9, type: 2}
+  player2Character: {fileID: 11400000, guid: 6dad59009b778a9418e87e3cbcd098e9, type: 2}
 --- !u!4 &1763366944
 Transform:
   m_ObjectHideFlags: 0
