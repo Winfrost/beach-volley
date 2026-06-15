@@ -303,6 +303,15 @@ Da decidere l'ordine, opzioni:
 - Limiti noti v1 (upgrade futuri): nessuna PREDIZIONE traiettoria, reattiva (no anticipazione), nessuna MIRA
 - Regola: un solo componente IPlayerInput per giocatore
 
+## Decisioni di architettura prese (aggiunte Sessione 8 - touch)
+- Controlli touch via pulsanti UI a schermo (no migrazione Input System ora: non necessaria per
+  sinistra/destra/salto). Path Input System resta aperto come futura impl di IPlayerInput
+- TouchButton: UI hold-button (IPointerDown/Up) -> IsPressed + edge ConsumePressedThisFrame; reset su OnDisable
+- TouchPlayerInput implementa IPlayerInput leggendo 3 TouchButton (Left/Right/Jump)
+- Testabile in editor col mouse (stessi eventi pointer del tocco)
+- Selezione sorgente per piattaforma/modalità: a mano per ora, automatica con i menu (Fase 3)
+- Tutte e tre le sorgenti (Keyboard/AI/Touch) ora implementano IPlayerInput: astrazione completa
+
 ## Backlog idee future
 *(vuoto per ora, raccoglierà idee che emergono lungo il percorso
 ma che NON vanno implementate subito)*
