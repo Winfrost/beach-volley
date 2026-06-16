@@ -5,27 +5,29 @@ using BeachVolley.Content;
 namespace BeachVolley.Core
 {
     /// <summary>
-    /// Ensures the GameManager exists when this scene starts, applies each player's
-    /// CharacterDefinition, then transitions to Playing once the GameManager has
-    /// reached its initial MainMenu state. Place one of these in the Gameplay scene.
+    /// Composition root for the Gameplay scene. Ensures the GameManager exists, applies
+    /// each player's CharacterDefinition, then transitions to Playing once the GameManager
+    /// has reached its initial MainMenu state. Place one of these in the Gameplay scene.
     ///
-    /// The four "Match Setup" fields are a temporary, inline proto-MatchConfig: in a
-    /// later step they will be read from a MatchConfig that survives a scene change,
-    /// written by the menu. The application code below will not change — only WHERE
-    /// the CharacterDefinitions come from.
+    /// Character source priority:
+    ///   1. MatchSession.Pending  — a MatchConfig handed over by the menu / tournament.
+    ///   2. The serialized fields below — fallback when booting straight into Gameplay
+    ///      (the in-editor test workflow). These fields ARE the inline default config.
+    /// The application code does not care which source won: it just applies a MatchConfig.
     /// </summary>
     public class GameplayBootstrap : MonoBehaviour
     {
         // ============================================================
-        // MATCH SETUP (temporary — becomes MatchConfig in the menu step)
+        // MATCH SETUP (fallback config when no MatchSession is pending)
         // ============================================================
 
-        [Header("Match Setup (temporary — becomes MatchConfig in the menu step)")]
+        [Header("Players in scene")]
         [Tooltip("The PlayerCharacter component on each player GameObject.")]
         [SerializeField] private PlayerCharacter player1;
         [SerializeField] private PlayerCharacter player2;
 
-        [Tooltip("Which character each player uses for this match.")]
+        [Header("Fallback characters (used when booting straight into Gameplay)")]
+        [Tooltip("Which character each player uses when no menu provided a MatchConfig.")]
         [SerializeField] private CharacterDefinition player1Character;
         [SerializeField] private CharacterDefinition player2Character;
 
@@ -53,8 +55,22 @@ namespace BeachVolley.Core
 
         private void ApplyCharacters()
         {
-            if (player1 != null) player1.Apply(player1Character);
-            if (player2 != null) player2.Apply(player2Character);
+            // Use the pending config from the menu, or fall back to our own fields.
+            MatchConfig config = MatchSession.HasPending
+                ? MatchSession.Pending
+                : BuildFallbackConfig();
+
+            if (player1 != null) player1.Apply(config.player1Character);
+            if (player2 != null) player2.Apply(config.player2Character);
+        }
+
+        private MatchConfig BuildFallbackConfig()
+        {
+            return new MatchConfig
+            {
+                player1Character = player1Character,
+                player2Character = player2Character,
+            };
         }
 
         // ============================================================
