@@ -158,12 +158,37 @@ FX (FX_SandPuff, FX_HitSpark), Audios.
 - **Build Settings**: MainMenu (indice 0) + Gameplay aggiunte.
 - Test "boot dritto in Gameplay" ancora intatto (MatchSession vuoto -> fallback).
 
-
+### Passo 4 — Modalita 1P/2P + difficolta CPU ✅
+- **Due assi separati**: FORMA FISICA (PlayerStats, del personaggio, mai toccata dalla
+  difficolta) vs BRAVURA (AIStats, quanto bene la CPU guida quel corpo). La difficolta
+  e un avversario "piu bravo", non "piu potente".
+- **MatchConfig cresce**: mode (enum MatchMode 1P/2P = bivio strutturale) + cpuStats
+  (AIStats = difficolta; un riferimento, non un enum). cpuStats null -> fallback all'aiStats
+  del personaggio (config-or-fallback a livello di campo).
+- **Difficolta SOSTITUISCE (non modula)**: scelta -> AIStats_Easy/Medium/Hard usato al
+  posto del cervello del personaggio. Leva piu forte = usePrediction (off su Easy: insegue
+  dove la palla E', non dove SARA -> sempre in ritardo). In 2P l'asse bravura non esiste
+  (nessuna CPU, AIStats non letto).
+- **PlayerController.SetInput(IPlayerInput)**: sceglie la sorgente di input a runtime.
+  Serve perche il controller cachea input in Awake (troppo presto); il Bootstrap (Start,
+  dopo gli Awake, prima del primo Tick) lo sovrascrive. Stessa mossa di SetStats.
+- **AIPlayerInput.SetStats(AIStats)**: inietta la difficolta. Legge stats dal vivo ogni
+  Tick -> applica subito.
+- **Evoluzione regola "un solo IPlayerInput"**: Player2 ora ospita ENTRAMBI Keyboard+AI
+  (configurati in inspector); il Bootstrap ne SELEZIONA uno via SetInput. Da scelta
+  manuale a automatica. Chiude la rifinitura Fase 2 "selettore input automatico".
+- **GameplayBootstrap**: risolve i pezzi di Player2 in Awake (GetComponent), in Start
+  legge config e fa ConfigurePlayer2Input: 1P -> AI (cervello scelto o default) +
+  SetInput(ai); 2P -> SetInput(keyboard). Campi fallback nuovi (fallbackMode,
+  fallbackCpuStats) per testare tutto da boot-direct.
+- **AIStats Easy/Medium/Hard** (Settings/Difficulty): tarati sui campi reali
+  (chaseDeadzone, usePrediction, maxPredictTime, hitReachX, jumpTriggerHeight, jumpCooldown).
+- Da menu, per ora, mode default = TwoPlayers (i bottoni 1P/2P sono il prossimo step).
 
 ### PROSSIMO PASSO
-Schermata selezione personaggio: i giocatori scelgono i 2 CharacterDefinition che il
-menu infila nel MatchConfig (sostituisce i default serializzati). Risolve anche il nodo
-del tint identico in 2P.
+UI del menu: bottoni 1P/2P + (se 1P) Facile/Medio/Difficile + selezione dei 2 personaggi
+(sinistra P1 / destra P2). Il menu scrive mode + cpuStats + i 2 personaggi nel MatchConfig.
+Risolve anche il nodo tint (marcatore P1/P2 separato dal tint-identita).
 
 ### NODO APERTO (da risolvere alla selezione personaggio)
 - **Tint identita vs distinzione**: oggi il tint viene dal CharacterDefinition. In 2P
@@ -174,10 +199,11 @@ del tint identico in 2P.
 1. CharacterDefinition + iniezione ✅
 2. MatchConfig + MatchSession ✅
 3. Scena menu + caricamento scene ✅
-4. Selezione personaggio (risolve anche il nodo tint)  ← prossimo
-5. Stadi (altro campo del MatchConfig)
-6. Modalita torneo (orchestra N match via MatchConfig)
-7. Salvataggi (PER ULTIMI)
+4. Modalita 1P/2P + difficolta CPU (motore) ✅
+5. UI selezione: modalita + difficolta + personaggi (comandi) + nodo tint  ← prossimo
+6. Stadi (altro campo del MatchConfig)
+7. Modalita torneo (orchestra N match via MatchConfig)
+8. Salvataggi (PER ULTIMI)
 
 ---
 
