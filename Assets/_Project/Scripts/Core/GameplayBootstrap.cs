@@ -1,35 +1,50 @@
 using System.Collections;
 using UnityEngine;
 using BeachVolley.Content;
+using BeachVolley.Gameplay;
+using BeachVolley.AI;
 
 namespace BeachVolley.Core
 {
     /// <summary>
     /// Composition root for the Gameplay scene. Ensures the GameManager exists, applies
-    /// each player's CharacterDefinition, then transitions to Playing once the GameManager
-    /// has reached its initial MainMenu state. Place one of these in the Gameplay scene.
+    /// each player's character, selects player 2's input source from the match mode, then
+    /// transitions to Playing once the GameManager has reached MainMenu.
     ///
-    /// Character source priority:
-    ///   1. MatchSession.Pending  — a MatchConfig handed over by the menu / tournament.
-    ///   2. The serialized fields below — fallback when booting straight into Gameplay
-    ///      (the in-editor test workflow). These fields ARE the inline default config.
-    /// The application code does not care which source won: it just applies a MatchConfig.
+    /// Config priority: MatchSession.Pending (from the menu) else the serialized fallback
+    /// fields below (boot-direct test workflow). The application code is identical either way.
     /// </summary>
     public class GameplayBootstrap : MonoBehaviour
     {
         // ============================================================
-        // MATCH SETUP (fallback config when no MatchSession is pending)
+        // PLAYERS IN SCENE
         // ============================================================
 
         [Header("Players in scene")]
-        [Tooltip("The PlayerCharacter component on each player GameObject.")]
         [SerializeField] private PlayerCharacter player1;
         [SerializeField] private PlayerCharacter player2;
 
-        [Header("Fallback characters (used when booting straight into Gameplay)")]
-        [Tooltip("Which character each player uses when no menu provided a MatchConfig.")]
+        // ============================================================
+        // FALLBACK CONFIG (used when no MatchSession is pending)
+        // ============================================================
+
+        [Header("Fallback characters (boot-direct testing)")]
         [SerializeField] private CharacterDefinition player1Character;
         [SerializeField] private CharacterDefinition player2Character;
+
+        [Header("Fallback match settings (boot-direct testing)")]
+        [Tooltip("Mode to use when no menu provided a MatchConfig.")]
+        [SerializeField] private MatchMode fallbackMode = MatchMode.OnePlayerVsCPU;
+        [Tooltip("CPU brain (difficulty) for boot-direct testing. Empty -> player 2 character's own aiStats.")]
+        [SerializeField] private AIStats fallbackCpuStats;
+
+        // ============================================================
+        // RESOLVED PLAYER 2 PARTS (its input depends on the match mode)
+        // ============================================================
+
+        private PlayerController p2Controller;
+        private KeyboardPlayerInput p2Keyboard;
+        private AIPlayerInput p2Ai;
 
         // ============================================================
         // UNITY LIFECYCLE
@@ -37,32 +52,32 @@ namespace BeachVolley.Core
 
         private void Awake()
         {
-            // Touching Instance triggers auto-creation if it doesn't exist yet.
             _ = GameManager.Instance;
+
+            if (player2 != null)
+            {
+                p2Controller = player2.GetComponent<PlayerController>();
+                p2Keyboard = player2.GetComponent<KeyboardPlayerInput>();
+                p2Ai = player2.GetComponent<AIPlayerInput>();
+            }
         }
 
         private void Start()
         {
-            // Apply characters first (all Awakes have already run, so the players'
-            // PlayerCharacter components have cached their parts), then start the match.
-            ApplyCharacters();
-            StartCoroutine(StartMatchWhenReady());
-        }
-
-        // ============================================================
-        // CHARACTER INJECTION
-        // ============================================================
-
-        private void ApplyCharacters()
-        {
-            // Use the pending config from the menu, or fall back to our own fields.
+            // Resolve the config once, then drive both character application and input setup.
             MatchConfig config = MatchSession.HasPending
                 ? MatchSession.Pending
                 : BuildFallbackConfig();
 
-            if (player1 != null) player1.Apply(config.player1Character);
-            if (player2 != null) player2.Apply(config.player2Character);
+            ApplyCharacters(config);
+            ConfigurePlayer2Input(config);
+
+            StartCoroutine(StartMatchWhenReady());
         }
+
+        // ============================================================
+        // CONFIG
+        // ============================================================
 
         private MatchConfig BuildFallbackConfig()
         {
@@ -70,7 +85,55 @@ namespace BeachVolley.Core
             {
                 player1Character = player1Character,
                 player2Character = player2Character,
+                mode = fallbackMode,
+                cpuStats = fallbackCpuStats,
             };
+        }
+
+        // ============================================================
+        // APPLICATION
+        // ============================================================
+
+        private void ApplyCharacters(MatchConfig config)
+        {
+            if (player1 != null) player1.Apply(config.player1Character);
+            if (player2 != null) player2.Apply(config.player2Character);
+        }
+
+        private void ConfigurePlayer2Input(MatchConfig config)
+        {
+            if (p2Controller == null)
+            {
+                Debug.LogError("[GameplayBootstrap] Player 2 has no PlayerController.", this);
+                return;
+            }
+
+            if (config.mode == MatchMode.OnePlayerVsCPU)
+            {
+                if (p2Ai == null)
+                {
+                    Debug.LogError("[GameplayBootstrap] 1P mode but Player 2 has no AIPlayerInput.", this);
+                    return;
+                }
+
+                // Difficulty (BRAVURA axis): chosen brain, else the character's own default brain.
+                AIStats brain = config.cpuStats != null
+                    ? config.cpuStats
+                    : (config.player2Character != null ? config.player2Character.aiStats : null);
+
+                if (brain != null) p2Ai.SetStats(brain);
+                p2Controller.SetInput(p2Ai);
+            }
+            else // TwoPlayers
+            {
+                if (p2Keyboard == null)
+                {
+                    Debug.LogError("[GameplayBootstrap] 2P mode but Player 2 has no KeyboardPlayerInput.", this);
+                    return;
+                }
+
+                p2Controller.SetInput(p2Keyboard);
+            }
         }
 
         // ============================================================
@@ -81,15 +144,11 @@ namespace BeachVolley.Core
         {
             GameManager gm = GameManager.Instance;
 
-            // Wait until the GameManager leaves the Boot state.
-            // This handles the case where the GameManager's Start() runs
-            // after ours (e.g. when auto-created at runtime).
             while (gm.CurrentState == GameState.Boot)
             {
-                yield return null; // wait one frame, then check again
+                yield return null;
             }
 
-            // Now the GameManager should be in MainMenu. Transition to Playing.
             if (gm.CurrentState == GameState.MainMenu)
             {
                 gm.ChangeState(GameState.Playing);

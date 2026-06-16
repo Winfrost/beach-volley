@@ -6,7 +6,7 @@ namespace BeachVolley.AI
     /// <summary>
     /// CPU implementation of IPlayerInput. Produces movement and jump intent by tracking
     /// (and predicting) the ball, so the SAME PlayerController that drives a human drives the CPU.
-    /// Lives on a player GameObject in place of KeyboardPlayerInput.
+    /// Lives on a player GameObject alongside (and selected instead of) KeyboardPlayerInput.
     /// </summary>
     public class AIPlayerInput : MonoBehaviour, IPlayerInput
     {
@@ -61,6 +61,21 @@ namespace BeachVolley.AI
 
             homeX = transform.position.x;
             mySign = Mathf.Sign(Mathf.Approximately(homeX, 0f) ? 1f : homeX);
+        }
+
+        // ============================================================
+        // INJECTION (called by GameplayBootstrap)
+        // ============================================================
+
+        /// <summary>
+        /// Swap the AIStats this brain reads = set the difficulty. Stat values are read
+        /// live every Tick, so the new difficulty applies immediately. This is the BRAVURA
+        /// axis; the character's PHYSICAL stats (PlayerStats) are untouched.
+        /// </summary>
+        public void SetStats(AIStats newStats)
+        {
+            if (newStats == null) return;
+            stats = newStats;
         }
 
         // ============================================================

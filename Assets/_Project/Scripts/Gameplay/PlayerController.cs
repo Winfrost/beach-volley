@@ -38,6 +38,11 @@ namespace BeachVolley.Gameplay
         private void Awake()
         {
             rb = GetComponent<Rigidbody2D>();
+
+            // Default input source = whatever single IPlayerInput is on this GameObject.
+            // If the GameObject hosts more than one (e.g. Player 2 carries both Keyboard
+            // and AI), GameplayBootstrap will override this via SetInput() in Start(),
+            // which runs after all Awakes but before the first Update/Tick.
             input = GetComponent<IPlayerInput>();
 
             if (stats == null)
@@ -71,18 +76,27 @@ namespace BeachVolley.Gameplay
         }
 
         // ============================================================
-        // STATS INJECTION
+        // INJECTION (called by GameplayBootstrap / PlayerCharacter)
         // ============================================================
 
         /// <summary>
         /// Swap the PlayerStats this controller reads. Because every stat value is read
         /// live (never cached), the change takes effect on the next physics step.
-        /// Called by PlayerCharacter when a CharacterDefinition is applied.
         /// </summary>
         public void SetStats(PlayerStats newStats)
         {
             if (newStats == null) return;
             stats = newStats;
+        }
+
+        /// <summary>
+        /// Choose which input source drives this player. Used to select keyboard vs AI
+        /// for player 2 based on the match mode. Safe to call in Start (before first Tick).
+        /// </summary>
+        public void SetInput(IPlayerInput newInput)
+        {
+            if (newInput == null) return;
+            input = newInput;
         }
 
         // ============================================================
