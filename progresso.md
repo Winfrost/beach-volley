@@ -25,90 +25,177 @@ Modalità: 1 vs CPU e 2 giocatori sullo stesso schermo.
   1. Niente magic numbers (ScriptableObject o costanti)
   2. Un MonoBehaviour fa UNA cosa (obiettivo ~150 righe)
   3. Commit frequenti, piccoli e descrittivi (refactor separati dalle feature)
+- **Principio Fase 3**: confini puliti, non infrastruttura anticipata. Si costruisce
+  la cosa piccola che funziona, con i layer separati, cosi il pezzo grosso si aggiunge
+  AL BORDO senza riscrivere il cuore. (Online/pagamenti/evoluzioni = lunghissimo periodo,
+  NON si architettano ora.)
 
 ## Piano per fasi
 - **Fase 0** — Setup ambiente ✅
 - **Fase 1** — Ricostruzione prototipo in Unity ✅
-- **Fase 2** — Game feel + arte + audio + AI + input ✅ (QUESTA APPENA CHIUSA)
-- **Fase 3** — Contenuto (personaggi, stadi, modalità torneo, salvataggi) ← PROSSIMA
+- **Fase 2** — Game feel + arte + audio + AI + input ✅
+- **Fase 3** — Contenuto (personaggi, stadi, modalità torneo, salvataggi) ← IN CORSO
 - **Fase 4** — Audio (musica chiptune, pass SFX completo)
 - **Fase 5** — Mobile e polish (build su device, performance, vari schermi)
 - **Fase 6** — Pubblicazione (account store, asset, beta, submission)
 
 ---
 
-## STATO ATTUALE: FASE 2 COMPLETATA ✅
+## STATO ATTUALE: FASE 3 IN CORSO
 
-Il gioco è completo end-to-end su tutti i fronti principali:
+Architettura dei contenuti avviata. Fatti i primi due passi (iniezione personaggi +
+seam di setup match). Prossimo: scena menu + caricamento scene + selezione personaggio.
 
-**Giocabilità**
-- Modalità 2 giocatori locali da tastiera (frecce+Spazio / WASD)
-- Modalità 1 giocatore vs CPU (la CPU prevede la traiettoria della palla)
-- Controlli touch per mobile (pulsanti a schermo)
-
-**Game feel** (tutto via eventi, consolidato in `ImpactFeedback`)
-- Colpo direzionale del giocatore (punto di contatto + velocità)
-- Squash & stretch della palla
-- Screen shake, hit-stop, particelle d'impatto (sabbia + scintilla), SFX d'impatto
-
-**Grafica (pixel art)**
-- Pipeline pixel-perfect: PPU 25, risoluzione interna 480x270, upscale x4 a 1080p
-- Scena vestita: sfondo cielo/mare, sabbia, palla, due giocatori tintati
-- Giocatori animati (idle / walk / air) via frame singoli
-
-**Architettura input**
-- Tre sorgenti (tastiera, CPU, touch) dietro l'interfaccia `IPlayerInput`;
-  il `PlayerController` le guida tutte senza saperlo
+Base end-to-end della Fase 2 intatta:
+- 2 giocatori locali da tastiera (frecce+Spazio / WASD)
+- 1 giocatore vs CPU (predizione balistica della palla)
+- Controlli touch (pulsanti a schermo)
+- Game feel completo via eventi (consolidato in ImpactFeedback)
+- Pixel art pixel-perfect (PPU 25, 480x270 upscale x4)
+- Tre sorgenti input dietro IPlayerInput
 
 ---
 
-## Struttura del progetto
+## Struttura del progetto (aggiornata Fase 3)
 
 ```
 Assets/_Project/
-  Animations/  Audio/  Fonts/  Materials/  Prefabs/  Scenes/  Settings/  Sprites/
+  Animations/  Audio/  Fonts/  Materials/  Prefabs/  Sprites/
+  Scenes/      Gameplay.unity, MainMenu.unity (creata, da riempire)
+  Settings/    *_Default.asset, PixelArtSprite.preset, BallBouncy.physicsMaterial2D
+    Characters/  Character_Scatto, Character_Bastione,
+                 PlayerStats_Scatto, PlayerStats_Bastione
   Scripts/
     AI/           AIPlayerInput, AIStats
-    Core/         GameManager, GameplayBootstrap, state machine
-    Gameplay/     Ball, BallStats, PlayerController, PlayerStats, MatchController,
-                  IPlayerInput, KeyboardPlayerInput, TouchButton, TouchPlayerInput
+    Content/      CharacterDefinition, PlayerCharacter, MatchConfig, MatchSession
+    Core/         GameManager, GameplayBootstrap, GameState,
+                  GameStateDebugListener, MatchController
+    Gameplay/     Ball, BallStats, PlayerController, PlayerStats, IPlayerInput,
+                  KeyboardPlayerInput, TouchButton, TouchPlayerInput
     Presentation/ BallSquashStretch, CameraShake, HitStop, ImpactFeedback,
                   SfxPlayer, SpriteAnimator
     UI/           HUDController, WinScreenController
     Utils/
 ```
 
-Namespace allineati alle cartelle: `BeachVolley.Core/.Gameplay/.AI/.Presentation/.UI`.
+Namespace allineati alle cartelle: `BeachVolley.Core/.Gameplay/.AI/.Content/.Presentation/.UI`.
+**Simmetria contenuto**: Scripts/Content (codice) <-> Settings/Characters (dati) <->
+Sprites/Characters (arte). Una sola natura di file per cartella; stadi/modalita
+replicheranno (Settings/Stages, ecc.).
 
-**Rimossi durante il consolidamento:** `GameplayShakeTrigger`, `HitStopTrigger`,
-`ImpactParticleTrigger` (fusi in `ImpactFeedback`).
+Gerarchia GameObject scena Gameplay: _Bootstrap, Main Camera, Environment (Background,
+LeftWall, RightWall, NetPlaceholder, Ground), Gameplay (Player1+Visual, Player2+Visual,
+Ball+Visual), UI (Canvas: ScoreText, WinPanel, BtnLeft/Right/Jump), EventSystem,
+FX (FX_SandPuff, FX_HitSpark), Audios.
 
 ---
 
 ## Strategia chat con Claude
-- Una chat per FASE del progetto; chat nuova al confine di fase
-- Questo `progresso.md` è il ponte: incollarlo in cima al primo messaggio di ogni chat nuova
-- Prossima chat: "Beach Volley - Fase 3 - Contenuti"
+- Una chat per FASE; chat nuova al confine di fase. Questo `progresso.md` è il ponte:
+  incollarlo in cima al primo messaggio di ogni chat nuova.
+- A fine di ogni micro-passo: commit git + aggiornamento di questo file.
 
-## Prossima Fase: 3 - Contenuti
-Obiettivo: personaggi con stat differenti, stadi, modalità (torneo), salvataggi.
-L'architettura costruita è la base giusta: stat in ScriptableObject (PlayerStats,
-BallStats, AIStats), comunicazione a eventi, sorgenti di input intercambiabili.
+---
+
+## FASE 3 — Contenuti: avanzamento
+
+### Passo 1 — Personaggi come contenuto iniettabile ✅
+- **CharacterDefinition** (SO, namespace BeachVolley.Content, cartella Scripts/Content):
+  unita di CONTENUTO = identita (displayName, portrait, tint) + PlayerStats (umano)
+  + AIStats (CPU). NON gonfia PlayerStats: lo CONTIENE per riferimento.
+- **Separazione dato/identita**: PlayerStats = "come si muove il corpo" (fisica,
+  riusabile, si tocca per bilanciare); CharacterDefinition = "chi e il personaggio".
+  Due file per personaggio (Character_X + PlayerStats_X), legati per riferimento.
+  Asset condiviso = stesso oggetto in memoria (NON template che si istanzia): stat
+  condivise tra due Character li renderebbe identici -> serve un PlayerStats per ognuno.
+- **PlayerController.SetStats(newStats)**: swap del riferimento stats. Funziona perche
+  il controller legge le stat DAL VIVO (mai cachate in Awake) -> vale dal FixedUpdate
+  successivo. Campo stats nell'inspector resta come fallback/testabilita.
+- **PlayerCharacter** (componente, Content, RequireComponent PlayerController):
+  MECCANISMO per "indossare" un personaggio. Apply(definition) spinge PlayerStats sul
+  controller e tint sullo SpriteRenderer (GetComponentInChildren -> figlio Visual).
+  QUALE personaggio lo decide altri.
+- **Iniezione per RIFERIMENTO non per valore**: si passa QUALE PlayerStats usare, non
+  si copiano i valori. Stessa mossa di IPlayerInput. Dipendenze: Content -> Gameplay,
+  mai il contrario (no ciclo).
+- Personaggi di prova: Scatto (veloce, arioso) e Bastione (lento, ancorato), tint diversi.
+
+### Passo 2 — MatchConfig + MatchSession: seam di setup match ✅
+- **MatchConfig**: data class (NON SO), namespace Content. La FORMA del setup di un
+  match (i 2 CharacterDefinition; poi stadio/regole/contesto torneo). Stato di SESSIONE
+  (transitorio, runtime, valido per un match), non tuning autoriale -> plain class, cosi
+  non sporca il test "boot dritto in Gameplay" (un SO conserverebbe i valori runtime).
+- **MatchSession**: statico, Content. Il TRASPORTO del config pendente tra la scena che
+  lo scrive (menu/torneo) e quella che lo consuma (Gameplay). Unico seam deliberato per
+  passare dati tra scene. Auto-reset a ogni Play via [RuntimeInitializeOnLoadMethod
+  (SubsystemRegistration)] -> sessione sempre fresca, a prescindere da "Reload Domain".
+- **Forma vs trasporto** separati: cambiare CHI riempie il config (menu oggi, torneo
+  domani) non tocca la forma ne il codice che la legge.
+- **GameplayBootstrap = composition root**: UNICA eccezione legittima alla regola
+  "dipendenze in una direzione" — il suo mestiere e assemblare, quindi conosce tutti i
+  layer di proposito. Legge config-o-fallback: MatchSession.Pending se presente, altrimenti
+  BuildFallbackConfig() dai 4 campi serializzati (= i default di test).
+- Verifica: comportamento VISIBILE invariato bootando in Gameplay (prova che il fallback
+  funziona). Lo step costruisce il binario, non aggiunge gioco.
+
+### Passo 3 — Primo menu + transizione di scena ✅
+- **SceneNames** (statico, Core): costanti dei nomi scena (MainMenu, Gameplay). No magic
+  string. NB: ogni nome deve combaciare col file scena E con l'entry in Build Settings
+  (LoadScene per nome lo richiede).
+- **MainMenuController** (UI): bottone Gioca -> scrive un MatchConfig (2 personaggi di
+  default serializzati) via MatchSession.Set() -> SceneManager.LoadScene(Gameplay).
+  I default verranno sostituiti dalla selezione personaggio (3b); il job del controller
+  (costruisci config + carica) resta.
+- **Flusso completo che si chiude**: boot da MainMenu -> GameManager Boot->MainMenu ->
+  click Gioca -> config in MatchSession + load Gameplay -> GameManager PERSISTE (stato
+  MainMenu) -> GameplayBootstrap legge il config e fa MainMenu->Playing. Il binario dei
+  passi 1-2 si accende qui.
+- **GameManager NON toccato**: la state machine aveva gia MainMenu/Loading/Playing e la
+  transizione MainMenu->Playing. Buona lungimiranza passata.
+- **Scena MainMenu vestita**: Canvas (sotto UI, Scale With Screen Size 1920x1080),
+  BtnGioca->OnPlayPressed, EventSystem (sotto Managers). GameManager a RADICE
+  (obbligatorio per DontDestroyOnLoad; il suo Awake stacca a forza se figlio).
+- **Build Settings**: MainMenu (indice 0) + Gameplay aggiunte.
+- Test "boot dritto in Gameplay" ancora intatto (MatchSession vuoto -> fallback).
+
+
+
+### PROSSIMO PASSO
+Schermata selezione personaggio: i giocatori scelgono i 2 CharacterDefinition che il
+menu infila nel MatchConfig (sostituisce i default serializzati). Risolve anche il nodo
+del tint identico in 2P.
+
+### NODO APERTO (da risolvere alla selezione personaggio)
+- **Tint identita vs distinzione**: oggi il tint viene dal CharacterDefinition. In 2P
+  stesso personaggio = stesso colore. Da risolvere alla schermata di selezione (es.
+  tint-giocatore sovrapposto, contorno, o blocco del duplicato).
+
+### Ordine pianificato Fase 3
+1. CharacterDefinition + iniezione ✅
+2. MatchConfig + MatchSession ✅
+3. Scena menu + caricamento scene ✅
+4. Selezione personaggio (risolve anche il nodo tint)  ← prossimo
+5. Stadi (altro campo del MatchConfig)
+6. Modalita torneo (orchestra N match via MatchConfig)
+7. Salvataggi (PER ULTIMI)
 
 ---
 
 ## Fase 2 — rifiniture RIMANDATE (non ancora fatte)
-Lavoro opzionale lasciato indietro, da riprendere quando si vuole:
-- **Rete vestita**: oggi è una barra bianca (placeholder funzionale con collider).
-  Manca lo sprite pixel art (pali + maglia) dimensionato al collider.
-- **Mira della CPU**: la CPU rimanda la palla ma non sceglie *dove* (no mira al
-  campo scoperto). Va influenzata via posizionamento + velocità al contatto.
-- **Predizione CPU con rimbalzi sui muri**: ora ignora le carambole laterali
-  (si auto-corregge dopo il rimbalzo, ma non anticipa).
-- **Selettore input automatico** per piattaforma/modalità (ora si cambia a mano
-  il componente IPlayerInput sul giocatore; un menu lo farà in Fase 3).
-- **Polish mobile vero** (sconfina in Fase 5): build su device, performance,
-  gestione multi-aspect dei vari schermi, layout/trasparenza dei pulsanti touch.
+- **Rete vestita**: oggi barra bianca (placeholder con collider). Manca sprite pixel art
+  (pali + maglia) dimensionato al collider.
+- **Mira della CPU**: rimanda la palla ma non sceglie *dove* (no mira al campo scoperto).
+- **Predizione CPU con rimbalzi sui muri**: ignora le carambole laterali (si auto-corregge
+  dopo il rimbalzo, ma non anticipa).
+- **Selettore input automatico** per piattaforma/modalita (ora si cambia a mano il
+  componente IPlayerInput; un menu lo fara in Fase 3).
+- **Polish mobile vero** (sconfina in Fase 5): build su device, performance, multi-aspect,
+  layout/trasparenza pulsanti touch.
+
+## Fase 3 — rifiniture RIMANDATE (non ancora fatte)
+- **Reset punteggio dal menu**: il GameManager persiste col punteggio tra le scene. Prima
+  partita dal menu = 0-0 ok. Quando ci sara "torna al menu e rigioca" servira ResetMatch()
+  al punto giusto (metodo gia presente) per non trascinare il punteggio.
 
 ---
 
@@ -117,7 +204,7 @@ Lavoro opzionale lasciato indietro, da riprendere quando si vuole:
 - State Machine con transizioni validate esplicitamente (no transizioni "magiche")
 - Comunicazione tra sistemi via event Action<T> (no riferimenti diretti)
 - Sottoscrizione: OnEnable iscrive, OnDisable disiscrive, sempre
-- Player NON è Singleton, NON ha riferimenti al GameManager (accoppiamento minimo)
+- Player NON e Singleton, NON ha riferimenti al GameManager (accoppiamento minimo)
 - Movimento orizzontale: velocity diretta (feel arcade); salto: impulso + variable
   jump height + gravity multipliers; ground check via Physics2D.OverlapCircle
 - Config gameplay tutta in ScriptableObject (PlayerStats, BallStats)
@@ -132,21 +219,20 @@ Lavoro opzionale lasciato indietro, da riprendere quando si vuole:
 ## Decisioni di architettura — FASE 2 (Sessioni 6-8)
 
 ### Game feel (Sessione 6)
-- **Colpo direzionale** ("combinato"): punto di contatto + velocità del player.
+- **Colpo direzionale** ("combinato"): punto di contatto + velocita del player.
   Contatto normalizzato su collider.bounds.extents.x (indipendente da sprite/scala).
-  Ball legge la velocità del player da collision.rigidbody (no dipendenza da PlayerStats).
+  Ball legge la velocita del player da collision.rigidbody (no dipendenza da PlayerStats).
   aim in [-1,+1] -> angolo da verticale = aim * maxHitAngle; dir = (sin, cos) -> palla
   sempre verso l'alto. Il colpo sostituisce il rimbalzo fisico (rb.linearVelocity diretto);
   PhysicsMaterial2D solo per muri/terreno/rete. Parametri in BallStats.
 - **BallSquashStretch**: pattern "fisica sul root, grafica su figlio Visual". Componente
   reattivo, anima localScale del figlio (snap + recover via coroutine + AnimationCurve).
-  Squash ad assi fissi. Resta separato da ImpactFeedback (grafica locale della palla).
+  Squash ad assi fissi. Separato da ImpactFeedback (grafica locale della palla).
 - **Separazione meccanismo / policy** per il feedback di scena:
   - CameraShake = meccanismo (Shake(intensity), offset decrescente in LateUpdate)
   - HitStop = meccanismo (Time.timeScale=0 per N secondi REALI; WaitForSecondsRealtime;
-    OnDestroy ripristina timeScale=1). Squash/shake usano Time.deltaTime apposta, così
-    si congelano/persistono coerenti durante il freeze.
-  - Particelle: nessun meccanismo custom (il ParticleSystem È il meccanismo;
+    OnDestroy ripristina timeScale=1). Squash/shake usano Time.deltaTime apposta.
+  - Particelle: nessun meccanismo custom (il ParticleSystem E il meccanismo;
     Simulation Space=World, Play On Awake=OFF, burst singolo)
   - SfxPlayer = meccanismo (AudioSource + PlayOneShot; audio non influenzato da timeScale)
   - CameraShake/HitStop/SfxPlayer = singleton SCOPED SULLA SCENA (no DontDestroyOnLoad)
@@ -155,53 +241,46 @@ Lavoro opzionale lasciato indietro, da riprendere quando si vuole:
   i tre trigger separati. Zero modifiche a Ball lungo tutto il game feel.
 
 ### Pixel art (Sessione 7)
-- PPU di progetto = 25; risoluzione interna 480x270 (upscale x4 a 1080p);
-  riproduce esattamente l'ortho size 5.4 esistente (270/2/25). Framing invariato.
-- Pixel Perfect Camera sulla Main Camera (PPU 25, ref 480x270)
+- PPU di progetto = 25; risoluzione interna 480x270 (upscale x4 a 1080p); ortho size 5.4
+  (270/2/25). Framing invariato. Pixel Perfect Camera sulla Main Camera (PPU 25, ref 480x270).
 - Import sprite: Single, Point, Compression None, no MipMaps, PPU 25, Full Rect.
   Preset "PixelArtSprite" salvato e impostato come Default for Texture Importer.
 - Sorting Layers: Default, Background, Midground, Gameplay, Ball, Foreground, FX, UI.
   Particelle -> layer FX via modulo Renderer del Particle System (NON SpriteRenderer).
 - Pattern "fisica sul root, grafica su figlio Visual" anche per il giocatore.
-- Pivot giocatore = Center (allinea a fisica esistente: transform al centro, piedi a -0.96).
-- Sprite: palla 16x16; giocatore 24x48 tintabile (Color: P1 rosso, P2 blu);
-  sfondo 480x270; sabbia 512x64 (larghezza nativa, no stretch).
-- Formula dimensione sprite: pixel = unità_mondo x PPU.
+- Pivot giocatore = Center. Sprite: palla 16x16; giocatore 24x48 tintabile (P1 rosso,
+  P2 blu); sfondo 480x270; sabbia 512x64 (larghezza nativa). pixel = unita_mondo x PPU.
 
 ### Input, AI, animazione (Sessione 8)
-- **IPlayerInput**: interfaccia per la "sorgente di intenzione" del giocatore
-  (Tick, Horizontal, JumpHeld, ConsumeJumpPressed). PlayerController NON legge più
-  la tastiera: ottiene IPlayerInput via GetComponent. Meccanismo (movimento) / policy (input).
-  Un solo componente IPlayerInput per giocatore.
-- **KeyboardPlayerInput** (schema tasti P1/P2), **AIPlayerInput**, **TouchPlayerInput**
-  implementano tutte la stessa interfaccia.
-- **AIPlayerInput** (cartella AI): insegue/prevede la palla; salta quando è sopra,
-  entro hitReachX e jumpTriggerHeight; jumpCooldown anti-rimbalzo. Config in AIStats.
-  Modalità 1P = sostituire KeyboardPlayerInput con AIPlayerInput su Player2.
-- **Predizione balistica**: risolve y(t)=altezza_intercetto per il moto del proiettile
-  (gravità effettiva = Physics2D.gravity.y * ballRb.gravityScale), poi X(t). Ricalcolata
-  ogni frame -> si auto-corregge dopo ogni rimbalzo. Salto sulla posizione REALE.
-- **Touch**: pulsanti UI a schermo (no migrazione Input System ora). TouchButton
-  (IPointerDown/Up -> IsPressed + edge) letto da TouchPlayerInput. Testabile in editor col mouse.
+- **IPlayerInput**: interfaccia "sorgente di intenzione" (Tick, Horizontal, JumpHeld,
+  ConsumeJumpPressed). PlayerController la ottiene via GetComponent, non legge la tastiera.
+  Meccanismo (movimento) / policy (input). Un solo componente IPlayerInput per giocatore.
+- **KeyboardPlayerInput / AIPlayerInput / TouchPlayerInput**: stessa interfaccia.
+- **AIPlayerInput** (cartella AI): insegue/prevede la palla; salta quando e sopra, entro
+  hitReachX e jumpTriggerHeight; jumpCooldown anti-rimbalzo. Config in AIStats. Modalita
+  1P = sostituire KeyboardPlayerInput con AIPlayerInput su Player2.
+- **Predizione balistica**: risolve y(t)=altezza_intercetto (gravita effettiva =
+  Physics2D.gravity.y * ballRb.gravityScale), poi X(t). Ricalcolata ogni frame ->
+  si auto-corregge dopo ogni rimbalzo. Salto sulla posizione REALE.
+- **Touch**: pulsanti UI a schermo. TouchButton (IPointerDown/Up -> IsPressed + edge)
+  letto da TouchPlayerInput. Testabile in editor col mouse.
 - **SpriteAnimator** (Presentation): cicla array di frame singoli per stato idle/walk/air,
-  stato dedotto dalla velocità del Rigidbody2D del padre. Niente Animator né sprite-sheet.
-  flipX pronto per arte di profilo.
+  stato dedotto dalla velocita del Rigidbody2D del padre. flipX pronto per arte di profilo.
 
 ---
 
 ## Lezioni dagli intoppi (Fase 2)
-- **Scala dei placeholder**: il Player aveva Scale (5, -3.5) ereditata dai rettangoli
-  -> pixel distorti, offset/Y invertiti, piedi nella sabbia, ground check fuori posto.
-  Fix: normalizzare a (1,1,1); dimensione dai PIXEL a PPU 25, non dalla scala.
-  Collider/offset SEMPRE in unità reali (Size x Scale). Normalizzare la scala PRIMA della pixel art.
-- **Preset contaminato**: un Preset salva TUTTI i campi, inclusa Sprite Mode e i ritagli.
-  Crearlo da uno sprite in Single mode pulito, altrimenti avvelena ogni import (warning
-  "rect outside texture"). Fix per-sprite: Sprite Mode = Single, Apply.
+- **Scala dei placeholder**: Player aveva Scale (5, -3.5) ereditata dai rettangoli ->
+  pixel distorti, offset/Y invertiti, piedi nella sabbia, ground check fuori posto.
+  Fix: normalizzare a (1,1,1); dimensione dai PIXEL a PPU 25, non dalla scala. Collider/offset
+  SEMPRE in unita reali (Size x Scale). Normalizzare la scala PRIMA della pixel art.
+- **Preset contaminato**: un Preset salva TUTTI i campi (Sprite Mode, ritagli). Crearlo da
+  uno sprite Single mode pulito, altrimenti avvelena ogni import ("rect outside texture").
 - **Reimport e riferimenti sprite**: cambiare Preset/PPU forza il reimport; se lo sprite
-  cambia identità (Single<->Multiple) i SpriteRenderer perdono il riferimento e diventano
-  invisibili. Dopo reimport massivi, verificare sempre che gli sprite siano ancora assegnati.
+  cambia identita (Single<->Multiple) i SpriteRenderer perdono il riferimento e diventano
+  invisibili. Dopo reimport massivi, verificare gli sprite assegnati.
 - **Sabbia visiva vs collider**: il bordo superiore del collider del terreno deve coincidere
-  con la superficie VISIBILE della sabbia, o i piedi sembrano affondare/fluttuare.
+  con la superficie VISIBILE della sabbia.
 - **Nome file = nome classe** per i MonoBehaviour; un errore di compilazione in QUALSIASI
   script blocca l'aggiunta di TUTTI i componenti custom (controllare la Console).
 - **Particle Sorting Layer** sta nel modulo Renderer, non su uno SpriteRenderer.
@@ -221,10 +300,13 @@ Lavoro opzionale lasciato indietro, da riprendere quando si vuole:
 - GameManager Script Execution Order: -100
 
 ## Backlog idee future
-*(raccoglie idee emerse ma da NON implementare subito)*
-- Variazione potenza del colpo in base alla velocità in ingresso (smash)
+*(idee emerse ma da NON implementare subito)*
+- Variazione potenza del colpo in base alla velocita in ingresso (smash)
 - Mira deliberata della CPU verso il campo scoperto
-- Animazioni più ricche (Aseprite, sprite di profilo con flip)
+- Animazioni piu ricche (Aseprite, sprite di profilo con flip)
+- Evoluzione personaggi: il CharacterDefinition resta TEMPLATE immutabile; la progressione
+  (livello/modificatori) vivra nel layer profilo. Stat effettive = base + modificatori
+  composte a runtime -> NON mutare mai l'asset condiviso (lo cambierebbe per tutti).
 
 ## Note utili
 - Vecchio progetto (>2 anni fa, solo APK) NON recuperato: solo ispirazione visiva.
