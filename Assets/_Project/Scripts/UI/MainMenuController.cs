@@ -8,16 +8,16 @@ using BeachVolley.AI;
 namespace BeachVolley.UI
 {
     /// <summary>
-    /// Orchestrates the main menu: collects the player's choices (mode, difficulty, and —
-    /// later — characters), builds a MatchConfig, hands it to MatchSession, and loads the
-    /// Gameplay scene. Pure policy: it holds NO game logic. The engine that acts on these
+    /// Orchestrates the main menu: collects the player's choices (mode, difficulty, and the
+    /// two characters via the selectors), builds a MatchConfig, hands it to MatchSession, and
+    /// loads the Gameplay scene. Pure policy: no game logic. The engine that acts on these
     /// choices (apply difficulty, pick player 2's input) lives in GameplayBootstrap.
     /// </summary>
     public class MainMenuController : MonoBehaviour
     {
-        [Header("Characters (temporary defaults — replaced by character select in 5b)")]
-        [SerializeField] private CharacterDefinition player1Character;
-        [SerializeField] private CharacterDefinition player2Character;
+        [Header("Character selection")]
+        [SerializeField] private CharacterSelector player1Selector;
+        [SerializeField] private CharacterSelector player2Selector;
 
         [Header("Difficulty brains")]
         [SerializeField] private AIStats easyStats;
@@ -43,7 +43,6 @@ namespace BeachVolley.UI
 
         private void Start()
         {
-            // Sensible defaults: 2 players, and (when 1P is chosen) Medium difficulty.
             selectedCpuStats = mediumStats;
             ApplyMode(MatchMode.TwoPlayers);
             HighlightDifficulty(mediumButton);
@@ -82,18 +81,20 @@ namespace BeachVolley.UI
 
         public void OnPlayPressed()
         {
-            if (player1Character == null || player2Character == null)
+            CharacterDefinition p1 = player1Selector != null ? player1Selector.Selected : null;
+            CharacterDefinition p2 = player2Selector != null ? player2Selector.Selected : null;
+
+            if (p1 == null || p2 == null)
             {
-                Debug.LogError("[MainMenuController] Default characters not assigned!", this);
+                Debug.LogError("[MainMenuController] A character selection is missing!", this);
                 return;
             }
 
             MatchSession.Set(new MatchConfig
             {
-                player1Character = player1Character,
-                player2Character = player2Character,
+                player1Character = p1,
+                player2Character = p2,
                 mode = selectedMode,
-                // Difficulty matters only vs CPU; in 2P leave it null.
                 cpuStats = selectedMode == MatchMode.OnePlayerVsCPU ? selectedCpuStats : null,
             });
 

@@ -185,10 +185,25 @@ FX (FX_SandPuff, FX_HitSpark), Audios.
   (chaseDeadzone, usePrediction, maxPredictTime, hitReachX, jumpTriggerHeight, jumpCooldown).
 - Da menu, per ora, mode default = TwoPlayers (i bottoni 1P/2P sono il prossimo step).
 
-### PROSSIMO PASSO
-UI del menu: bottoni 1P/2P + (se 1P) Facile/Medio/Difficile + selezione dei 2 personaggi
-(sinistra P1 / destra P2). Il menu scrive mode + cpuStats + i 2 personaggi nel MatchConfig.
-Risolve anche il nodo tint (marcatore P1/P2 separato dal tint-identita).
+### Passo 5a — Comandi menu: modalita + difficolta ✅
+- **MainMenuController cresce**: raccoglie mode (1P/2P) e difficolta (3 AIStats) e li
+  scrive nel MatchConfig insieme ai 2 personaggi. Pura policy/comandi, nessuna logica di
+  gioco: il motore (applicare difficolta, scegliere input P2) e gia nel Bootstrap (passo 4).
+- **Riga difficolta condizionale**: visibile solo in 1P via SetActive(difficultyRow). In 2P
+  cpuStats scritto null (asse bravura inesistente senza CPU).
+- **Selezione "uno tra N" = pattern radio**: per ora con Button + tint manuale nel controller
+  (Transition = None perche il tint automatico di Unity darebbe contro). Default: 2P, e
+  Medium quando si entra in 1P. Alternativa futura: Toggle + ToggleGroup.
+- **Layout UI**: Vertical Layout Group su MenuColumn (impila ModeRow/DifficultyRow/BtnGioca);
+  Horizontal Layout Group su ciascuna riga (affianca i bottoni). Child Force Expand Width off.
+  La gerarchia fa la parentela, il Layout Group fa la disposizione.
+- Verifica: 2P -> riga difficolta sparisce, Gioca -> 2 umani; 1P -> riga appare (Medium
+  evidenziato), scelta difficolta -> CPU corrispondente in partita.
+
+### PROSSIMO PASSO (5b)
+Selezione personaggi nella stessa schermata: due zone sinistra(P1)/destra(P2) con ritratti
+toccabili che scrivono i 2 CharacterDefinition nel MatchConfig (sostituendo i default
+serializzati). + Nodo TINT: marcatore P1/P2 separato dal tint-identita del personaggio.
 
 ### NODO APERTO (da risolvere alla selezione personaggio)
 - **Tint identita vs distinzione**: oggi il tint viene dal CharacterDefinition. In 2P
@@ -222,6 +237,10 @@ Risolve anche il nodo tint (marcatore P1/P2 separato dal tint-identita).
 - **Reset punteggio dal menu**: il GameManager persiste col punteggio tra le scene. Prima
   partita dal menu = 0-0 ok. Quando ci sara "torna al menu e rigioca" servira ResetMatch()
   al punto giusto (metodo gia presente) per non trascinare il punteggio.
+  
+- **Estetica menu**: oggi e funzionale ma "grezzo da programmatore" (bottoni di sistema,
+  niente titolo/tema/centratura). Rimandato di proposito a Fase 5 / dopo 5b: il menu
+  cambiera comunque con ritratti e colonne di selezione -> si lucida tutto insieme, una volta.
 
 ---
 
