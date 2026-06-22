@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 99421b5ddbbbcaa40857007e240921aa, type: 3}
   m_Name: Character_Bastione
   m_EditorClassIdentifier: Assembly-CSharp::BeachVolley.Content.CharacterDefinition
-  displayName: Bastino
+  displayName: Bastione
   portrait: {fileID: 0}
   tint: {r: 0.9118353, g: 0.98039216, b: 0.49411765, a: 1}
   playerStats: {fileID: 11400000, guid: c3ea9f10c7d16cd42905c73affb9b50d, type: 2}

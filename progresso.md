@@ -238,10 +238,47 @@ FX (FX_SandPuff, FX_HitSpark), Audios.
   (contorno resta netto). Un solo sprite tintabile per entrambi.
 - Verifica: stesso personaggio in 2P -> triangoli rosso/blu sopra le teste, distinguibili.
 
-### PROSSIMO PASSO (6)
-Stadi: StageDefinition (SO) + campo stage nel MatchConfig + il menu lo sceglie + lo scenario
-si applica in Gameplay. Stesso schema dei personaggi (contenuto iniettato), molto piu lineare
-della UI appena fatta.
+### Passo 6a — Stadi estetici (motore) ✅
+- **StageDefinition** (SO, Content): lo stadio = il "vestito" del campo. v1 ESTETICO:
+  background sprite + sand sprite. Strutturato a sezioni: identita / estetica / sezione
+  gameplay COMMENTATA non implementata (geometria, rete, musica, physics material) -> porta
+  aperta per il funzionale futuro senza ripensare l'asset.
+- **Estetico vs funzionale**: lo stadio tocca SOLO gli SpriteRenderer (vestito), MAI il
+  BoxCollider2D del Ground (geometria di gioco). Scoperta: il Ground ha sprite sabbia E
+  collider sullo STESSO GameObject -> si scambia solo .sprite, collider intatto.
+- **StageDresser** (componente, Content): Apply(stage) scambia background + sand sprite.
+  Meccanismo; QUALE stadio lo decide il Bootstrap. Sand sprite dei nuovi stadi devono avere
+  le stesse dimensioni (512x64) del corrente (il Ground ha scala X20 -> dimensioni diverse
+  si deformerebbero).
+- **MatchConfig** cresce: campo stage (era gia previsto nei commenti). null -> scena tiene
+  gli sprite correnti.
+- **GameplayBootstrap** applica lo stadio (config-o-fallback, campo fallbackStage). Stesso
+  schema dei personaggi: contenuto iniettato.
+- Verifica: boot-direct con fallbackStage = sprite attuali -> scena identica (prova del
+  percorso). Secondo stadio con sprite diversi -> si vede lo scambio.
+
+### Passo 6b-1 — Refactor: selettore di contenuto generico ✅ (refactor, no feature)
+- **ISelectableContent** (interfaccia, Content): DisplayName + SwatchColor + Preview.
+  Il minimo che una cella di selezione serve. CharacterDefinition la implementa (espone
+  displayName/tint/portrait). StageDefinition la implementera in 6b-2.
+- **ContentSwatch** (era CharacterSwatch): lavora su ISelectableContent, non sul tipo
+  concreto. Mostra Preview se c'e, altrimenti SwatchColor (placeholder).
+- **ContentSelector<T>** (base generica astratta, where T : ScriptableObject,
+  ISelectableContent): tutta la logica (genera swatch dal roster, traccia/evidenzia la
+  selezione, preview). Le sottoclassi fissano solo il tipo -> Unity serializza il roster
+  tipizzato e Selected ritorna T. UNA logica, tanti tipi.
+- **CharacterSelector** ora = ContentSelector<CharacterDefinition> { } (2 righe).
+- **Perche generica e non interfaccia "spogliata"**: roster tipizzato in inspector +
+  Selected tipizzato senza cast. Astrazione leggera, non over-engineering.
+- Refactor INVISIBILE dall'esterno: selezione personaggi identica a prima. Commit separato
+  dalle feature.
+- Migrazione editor: prefab swatch ricreato con ContentSwatch; selector ri-cablati
+  (swatchPrefab). SelectedMark (cornice/brackets) aggiunto come visual di selezione.
+
+### PROSSIMO PASSO (6b-2)
+Feature: StageSelector = ContentSelector<StageDefinition> { } (2 righe). StageDefinition
+implementa ISelectableContent (+ swatchColor per il chip menu). Colonna stadi nel menu,
+MainMenuController scrive config.stage. Riusa tutto il selettore generico appena fatto.
 
 ### NODO APERTO (da risolvere alla selezione personaggio)
 - **Tint identita vs distinzione**: oggi il tint viene dal CharacterDefinition. In 2P
@@ -253,10 +290,9 @@ della UI appena fatta.
 2. MatchConfig + MatchSession ✅
 3. Scena menu + caricamento scene ✅
 4. Modalita 1P/2P + difficolta CPU ✅
-5a. UI modalita + difficolta ✅
-5b. Selezione personaggi ✅
-5c. Marcatore P1/P2 ✅
-6. Stadi  ← prossimo
+1-5c ✅ (personaggi, modalita, difficolta, selezione, marcatore)
+6a. Stadi estetici (motore) ✅
+6b. Scelta stadio nel menu  ← prossimo
 7. Modalita torneo
 8. Salvataggi (PER ULTIMI)
 
@@ -286,6 +322,10 @@ della UI appena fatta.
   invece che in fondo), spaziature/centratura da sistemare, catena Content Size Fitter
   SelectorsRow->Play da raffinare. Polish insieme all'estetica menu (Fase 5 / dopo i
   ritratti veri).
+
+- **Cornice selezione (SelectedMark) da 9-slice**: oggi la 48x48 viene stirata e il bordo
+  risulta spesso/sgranato. Impostare Border=6 nello Sprite Editor + Image Type=Sliced.
+  Rinviato col polish menu.
 
 ---
 

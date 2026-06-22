@@ -1902,7 +1902,7 @@ MonoBehaviour:
   roster:
   - {fileID: 11400000, guid: 6dad59009b778a9418e87e3cbcd098e9, type: 2}
   - {fileID: 11400000, guid: 8fd6860ce91714141bb11d81241b20e9, type: 2}
-  swatchPrefab: {fileID: 3276066590422478174, guid: 050b3ce57c81a964889483a57b97d765, type: 3}
+  swatchPrefab: {fileID: 9017836026202317899, guid: 840df499524630e48983309979e1a9db, type: 3}
   swatchContainer: {fileID: 119131227}
   previewImage: {fileID: 0}
   previewName: {fileID: 0}
@@ -2626,7 +2626,7 @@ MonoBehaviour:
   roster:
   - {fileID: 11400000, guid: 6dad59009b778a9418e87e3cbcd098e9, type: 2}
   - {fileID: 11400000, guid: 8fd6860ce91714141bb11d81241b20e9, type: 2}
-  swatchPrefab: {fileID: 3276066590422478174, guid: 050b3ce57c81a964889483a57b97d765, type: 3}
+  swatchPrefab: {fileID: 9017836026202317899, guid: 840df499524630e48983309979e1a9db, type: 3}
   swatchContainer: {fileID: 365443447}
   previewImage: {fileID: 0}
   previewName: {fileID: 0}
