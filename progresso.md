@@ -199,11 +199,49 @@ FX (FX_SandPuff, FX_HitSpark), Audios.
   La gerarchia fa la parentela, il Layout Group fa la disposizione.
 - Verifica: 2P -> riga difficolta sparisce, Gioca -> 2 umani; 1P -> riga appare (Medium
   evidenziato), scelta difficolta -> CPU corrispondente in partita.
+  
+### Passo 5b — Selezione personaggi guidata dai dati ✅
+- **UI generata dai dati**: niente bottoni piazzati a mano. Un roster (lista di
+  CharacterDefinition) per colonna -> il selector genera uno swatch per elemento. Aggiungere
+  un personaggio = aggiungerlo al roster, la UI segue. Stessa filosofia dei ScriptableObject.
+- **CharacterSwatch** (componente su prefab, UI): la singola opzione toccabile. Setup(def,
+  callback) tinge l'Image col tint del personaggio (placeholder; domani Image.sprite =
+  ritratto) e scrive displayName; al click invoca la callback. SetSelected(bool) per il mark.
+- **CharacterSelector** (componente, una colonna P1/P2): roster + swatchPrefab +
+  swatchContainer. In Start istanzia gli swatch, traccia Selected (default roster[0]),
+  evidenzia il selezionato + preview opzionale. Due istanze (sinistra P1, destra P2),
+  stesso roster.
+- **MainMenuController**: legge player1Selector.Selected / player2Selector.Selected e li
+  scrive nel MatchConfig (sostituiti i campi default serializzati).
+- **Layout annidati (lezione UI)**: la catena Layout Element ("io figlio voglio essere
+  grande X") -> Layout Group ("io contenitore dispongo i figli") -> Content Size Fitter
+  ("io contenitore mi adatto ai figli"). Ogni livello annidato deve leggere l'altezza dei
+  figli (Control Child Size Height) E dichiararla al genitore (Content Size Fitter), o la
+  catena si spezza e gli elementi si sovrappongono. "Contenitore" = GameObject vuoto +
+  RectTransform + Layout Group (NON un Panel: il Panel porta un'Image che ruba i click).
+- Verifica: scegli P1 e P2 diversi -> Gioca -> in campo giocano proprio quei due.
 
-### PROSSIMO PASSO (5b)
-Selezione personaggi nella stessa schermata: due zone sinistra(P1)/destra(P2) con ritratti
-toccabili che scrivono i 2 CharacterDefinition nel MatchConfig (sostituendo i default
-serializzati). + Nodo TINT: marcatore P1/P2 separato dal tint-identita del personaggio.
+### Passo 5c — Marcatore P1/P2 (nodo tint risolto) ✅
+- **Due canali separati**: il tint resta IDENTITA del personaggio (sul corpo, da
+  PlayerCharacter); il marcatore e DISTINZIONE tra giocatori (sopra la testa, da slot).
+  Stesso personaggio in 2P -> stesso colore corpo (corretto) ma marcatori diversi ->
+  distinguibili. Un'informazione = un canale.
+- **PlayerMarker** (componente, Presentation): colora il SpriteRenderer del figlio Marker
+  in base a PlayerIndex (P1/P2 color). Intrinseco allo SLOT (Player1 e sempre P1) ->
+  settato in inspector + applicato in Awake, NON passa da MatchConfig/Bootstrap. Principio:
+  cio che dipende dal config passa dal Bootstrap, cio che e fisso del player sta sul player.
+- **Marcatore = figlio del player** (GameObject vuoto + SpriteRenderer), Sorting Layer
+  Foreground (sopra il player), Scale (1,1,1). Stesso pattern "logica sul root, grafica
+  sul figlio". PlayerMarker sul root, markerRenderer -> SpriteRenderer del figlio.
+- **Sprite marcatore** (pixel art 16x16): corpo BIANCO + contorno SCURO. Il tinting
+  moltiplica: bianco x colore = colore (corpo prende P1/P2 color), scuro x colore = scuro
+  (contorno resta netto). Un solo sprite tintabile per entrambi.
+- Verifica: stesso personaggio in 2P -> triangoli rosso/blu sopra le teste, distinguibili.
+
+### PROSSIMO PASSO (6)
+Stadi: StageDefinition (SO) + campo stage nel MatchConfig + il menu lo sceglie + lo scenario
+si applica in Gameplay. Stesso schema dei personaggi (contenuto iniettato), molto piu lineare
+della UI appena fatta.
 
 ### NODO APERTO (da risolvere alla selezione personaggio)
 - **Tint identita vs distinzione**: oggi il tint viene dal CharacterDefinition. In 2P
@@ -214,10 +252,12 @@ serializzati). + Nodo TINT: marcatore P1/P2 separato dal tint-identita del perso
 1. CharacterDefinition + iniezione ✅
 2. MatchConfig + MatchSession ✅
 3. Scena menu + caricamento scene ✅
-4. Modalita 1P/2P + difficolta CPU (motore) ✅
-5. UI selezione: modalita + difficolta + personaggi (comandi) + nodo tint  ← prossimo
-6. Stadi (altro campo del MatchConfig)
-7. Modalita torneo (orchestra N match via MatchConfig)
+4. Modalita 1P/2P + difficolta CPU ✅
+5a. UI modalita + difficolta ✅
+5b. Selezione personaggi ✅
+5c. Marcatore P1/P2 ✅
+6. Stadi  ← prossimo
+7. Modalita torneo
 8. Salvataggi (PER ULTIMI)
 
 ---
@@ -241,6 +281,11 @@ serializzati). + Nodo TINT: marcatore P1/P2 separato dal tint-identita del perso
 - **Estetica menu**: oggi e funzionale ma "grezzo da programmatore" (bottoni di sistema,
   niente titolo/tema/centratura). Rimandato di proposito a Fase 5 / dopo 5b: il menu
   cambiera comunque con ritratti e colonne di selezione -> si lucida tutto insieme, una volta.
+  
+- **Layout menu da rifinire**: funziona ma grezzo — ordine righe invertito (Gioca in cima
+  invece che in fondo), spaziature/centratura da sistemare, catena Content Size Fitter
+  SelectorsRow->Play da raffinare. Polish insieme all'estetica menu (Fase 5 / dopo i
+  ritratti veri).
 
 ---
 
