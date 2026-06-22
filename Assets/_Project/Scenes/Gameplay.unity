@@ -1011,6 +1011,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 680349635}
+  - component: {fileID: 680349636}
   m_Layer: 0
   m_Name: Environment
   m_TagString: Untagged
@@ -1038,6 +1039,20 @@ Transform:
   - {fileID: 969582134}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &680349636
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 680349634}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f2f4c904892ac94d9aa8fbc1114e25f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BeachVolley.Content.StageDresser
+  backgroundRenderer: {fileID: 922784257}
+  sandRenderer: {fileID: 969582135}
 --- !u!1 &718464308
 GameObject:
   m_ObjectHideFlags: 0
@@ -12821,10 +12836,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BeachVolley.Core.GameplayBootstrap
   player1: {fileID: 718464315}
   player2: {fileID: 1633589708}
+  stageDresser: {fileID: 680349636}
   player1Character: {fileID: 11400000, guid: 8fd6860ce91714141bb11d81241b20e9, type: 2}
   player2Character: {fileID: 11400000, guid: 6dad59009b778a9418e87e3cbcd098e9, type: 2}
   fallbackMode: 1
   fallbackCpuStats: {fileID: 0}
+  fallbackStage: {fileID: 11400000, guid: bbb691dce086cb946b11d484dbc7cb8d, type: 2}
 --- !u!4 &1763366944
 Transform:
   m_ObjectHideFlags: 0

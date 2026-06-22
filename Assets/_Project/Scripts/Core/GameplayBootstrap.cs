@@ -7,12 +7,12 @@ using BeachVolley.AI;
 namespace BeachVolley.Core
 {
     /// <summary>
-    /// Composition root for the Gameplay scene. Ensures the GameManager exists, applies
-    /// each player's character, selects player 2's input source from the match mode, then
-    /// transitions to Playing once the GameManager has reached MainMenu.
+    /// Composition root for the Gameplay scene. Ensures the GameManager exists, applies each
+    /// player's character, selects player 2's input from the match mode, dresses the stage,
+    /// then transitions to Playing once the GameManager has reached MainMenu.
     ///
-    /// Config priority: MatchSession.Pending (from the menu) else the serialized fallback
-    /// fields below (boot-direct test workflow). The application code is identical either way.
+    /// Config priority: MatchSession.Pending (menu) else the serialized fallback fields below
+    /// (boot-direct test workflow). The application code is identical either way.
     /// </summary>
     public class GameplayBootstrap : MonoBehaviour
     {
@@ -24,6 +24,9 @@ namespace BeachVolley.Core
         [SerializeField] private PlayerCharacter player1;
         [SerializeField] private PlayerCharacter player2;
 
+        [Header("Stage")]
+        [SerializeField] private StageDresser stageDresser;
+
         // ============================================================
         // FALLBACK CONFIG (used when no MatchSession is pending)
         // ============================================================
@@ -33,10 +36,9 @@ namespace BeachVolley.Core
         [SerializeField] private CharacterDefinition player2Character;
 
         [Header("Fallback match settings (boot-direct testing)")]
-        [Tooltip("Mode to use when no menu provided a MatchConfig.")]
         [SerializeField] private MatchMode fallbackMode = MatchMode.OnePlayerVsCPU;
-        [Tooltip("CPU brain (difficulty) for boot-direct testing. Empty -> player 2 character's own aiStats.")]
         [SerializeField] private AIStats fallbackCpuStats;
+        [SerializeField] private StageDefinition fallbackStage;
 
         // ============================================================
         // RESOLVED PLAYER 2 PARTS (its input depends on the match mode)
@@ -64,13 +66,13 @@ namespace BeachVolley.Core
 
         private void Start()
         {
-            // Resolve the config once, then drive both character application and input setup.
             MatchConfig config = MatchSession.HasPending
                 ? MatchSession.Pending
                 : BuildFallbackConfig();
 
             ApplyCharacters(config);
             ConfigurePlayer2Input(config);
+            ApplyStage(config);
 
             StartCoroutine(StartMatchWhenReady());
         }
@@ -87,6 +89,7 @@ namespace BeachVolley.Core
                 player2Character = player2Character,
                 mode = fallbackMode,
                 cpuStats = fallbackCpuStats,
+                stage = fallbackStage,
             };
         }
 
@@ -116,7 +119,6 @@ namespace BeachVolley.Core
                     return;
                 }
 
-                // Difficulty (BRAVURA axis): chosen brain, else the character's own default brain.
                 AIStats brain = config.cpuStats != null
                     ? config.cpuStats
                     : (config.player2Character != null ? config.player2Character.aiStats : null);
@@ -134,6 +136,13 @@ namespace BeachVolley.Core
 
                 p2Controller.SetInput(p2Keyboard);
             }
+        }
+
+        private void ApplyStage(MatchConfig config)
+        {
+            // null stage -> leave the scene's current sprites (e.g. before the menu picks a stage).
+            if (stageDresser != null && config.stage != null)
+                stageDresser.Apply(config.stage);
         }
 
         // ============================================================
