@@ -274,11 +274,49 @@ FX (FX_SandPuff, FX_HitSpark), Audios.
   dalle feature.
 - Migrazione editor: prefab swatch ricreato con ContentSwatch; selector ri-cablati
   (swatchPrefab). SelectedMark (cornice/brackets) aggiunto come visual di selezione.
+  
+### Passo 6b-2 — Selezione stadi nel menu ✅ (feature)
+- **StageDefinition implementa ISelectableContent**: DisplayName/SwatchColor (campo
+  swatchColor nuovo, per il chip menu)/Preview. Stessa interfaccia dei personaggi.
+- **StageSelector** = ContentSelector<StageDefinition> { } -> DUE righe. Il payoff
+  dell'astrazione 6b-1: zero logica nuova, riusa lo stesso ContentSwatch prefab dei
+  personaggi.
+- **MainMenuController** scrive config.stage = stageSelector.Selected. null -> Gameplay
+  tiene gli sprite correnti (StageDresser applica solo se non-null).
+- **Colonna stadi**: una riga sola (lo stadio e condiviso tra i due giocatori), non due
+  colonne come i personaggi.
+- **Stage_Palazzetto**: secondo stadio, arte generata (bg_arena_480x270 + parquet_strip_
+  512x64). Pavimento a venatura ORIZZONTALE perche il Ground ha scale X20 -> dettaglio
+  verticale si spalmerebbe. Stesse dimensioni degli sprite spiaggia -> nessun ritocco a
+  scale/posizioni. NB: campo ancora chiamato sandSprite (etichetta generica "sprite
+  pavimento"); eventuale rinomina a floorSprite rimandata.
+- Verifica: menu mostra Spiaggia/Palazzetto, scelta -> stadio corrispondente in campo.
 
-### PROSSIMO PASSO (6b-2)
-Feature: StageSelector = ContentSelector<StageDefinition> { } (2 righe). StageDefinition
-implementa ISelectableContent (+ swatchColor per il chip menu). Colonna stadi nel menu,
-MainMenuController scrive config.stage. Riusa tutto il selettore generico appena fatto.
+### Passo 7a — Torneo gauntlet: setup e avvio ✅
+- **Formato gauntlet (scala arcade)**: il giocatore sceglie il suo personaggio e affronta
+  in sequenza gli altri (CPU). Niente bracket (eviterebbe i match CPU-vs-CPU da simulare e
+  il vincolo potenza-di-2). Difficolta CRESCENTE, stadio che CAMBIA ogni match, ordine
+  avversari CASUALE.
+- **Torneo = orchestratore sopra MatchSession**: genera N MatchConfig in sequenza. Il
+  GameplayBootstrap resta match-only, NON sa se il match e singolo o il terzo della scala.
+- **TournamentRun** (Content): stato corsa (PlayerCharacter, coda avversari shuffle,
+  CurrentIndex). BuildCurrentMatchConfig() -> match vs avversario corrente (mode 1P, difficolta
+  per step, stadio per step). Advance() avanza. Difficolta scalata cosi l'ULTIMO match e
+  sempre il piu duro; stadio ciclato da offset random. Pura logica, niente scene/UI.
+- **TournamentSession** (statico, Content): trasporta la TournamentRun tra scene. Fratello
+  di MatchSession (uno trasporta un match, l'altro la corsa). Auto-reset a ogni Play.
+- **TournamentLauncher** (UI): bottone Torneo -> personaggio scelto + avversari (cast meno
+  giocatore, shuffle) + ladder difficolta + pool stadi -> costruisce TournamentRun, la mette
+  in TournamentSession, scrive il match 1 in MatchSession, carica Gameplay.
+- Verifica: Torneo -> match 1 vs avversario casuale, difficolta bassa, stadio dal pool.
+  Dopo la vittoria NON avanza ancora (e il 7b): finisce come match normale.
+
+### PROSSIMO PASSO (7) — Modalita torneo
+Orchestrare N match leggendo/scrivendo MatchConfig. Bracket di personaggi, avanzamento,
+schermata risultati. Primo vero uso del MatchConfig "in sequenza" invece che singolo.
+
+### Ordine pianificato Fase 3
+
 
 ### NODO APERTO (da risolvere alla selezione personaggio)
 - **Tint identita vs distinzione**: oggi il tint viene dal CharacterDefinition. In 2P
@@ -292,8 +330,8 @@ MainMenuController scrive config.stage. Riusa tutto il selettore generico appena
 4. Modalita 1P/2P + difficolta CPU ✅
 1-5c ✅ (personaggi, modalita, difficolta, selezione, marcatore)
 6a. Stadi estetici (motore) ✅
-6b. Scelta stadio nel menu  ← prossimo
-7. Modalita torneo
+6a ✅  6b-1 ✅ (refactor)  6b-2 ✅
+7. Modalita torneo  ← prossimo
 8. Salvataggi (PER ULTIMI)
 
 ---
@@ -326,6 +364,10 @@ MainMenuController scrive config.stage. Riusa tutto il selettore generico appena
 - **Cornice selezione (SelectedMark) da 9-slice**: oggi la 48x48 viene stirata e il bordo
   risulta spesso/sgranato. Impostare Border=6 nello Sprite Editor + Image Type=Sliced.
   Rinviato col polish menu.
+
+- **Controlli irrilevanti in modalita torneo**: colonna P2, difficolta manuale, stadio
+  manuale restano visibili ma ignorati premendo Torneo. Nasconderli in modalita torneo =
+  rifinitura UI rimandata.
 
 ---
 
