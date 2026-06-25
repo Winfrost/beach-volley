@@ -9,11 +9,10 @@ using BeachVolley.Content;
 namespace BeachVolley.UI
 {
     /// <summary>
-    /// Drives the post-match flow WHEN A TOURNAMENT IS ACTIVE: advance to the next opponent,
-    /// crown the champion, or eliminate the player. Listens to the same OnMatchEnded event as
-    /// WinScreenController, but each guards on TournamentSession.IsActive so only one acts.
-    ///
-    /// Player 1 is always the human, so winner == Player1 means the player won this match.
+    /// Drives the post-match flow WHEN A TOURNAMENT IS ACTIVE: advance, crown the champion, or
+    /// eliminate the player. Records the result to the persistent save on champion/elimination.
+    /// Listens to OnMatchEnded alongside WinScreenController; each guards on
+    /// TournamentSession.IsActive so only one acts.
     /// </summary>
     public class TournamentFlow : MonoBehaviour
     {
@@ -65,16 +64,39 @@ namespace BeachVolley.UI
                 run.Advance();
 
                 if (run.IsComplete)
-                    Show("CAMPIONE!\nHai vinto il torneo.", showContinue: false, showMenu: true);
+                {
+                    RecordChampion(run);
+                    SaveData save = SaveSystem.Load();
+                    Show($"CAMPIONE!\nTornei vinti: {save.tournamentsWon}", showContinue: false, showMenu: true);
+                }
                 else
+                {
                     Show($"Vinto! Prossimo avversario:\n{run.CurrentOpponent.DisplayName}  ({run.MatchNumber}/{run.TotalMatches})",
                          showContinue: true, showMenu: false);
+                }
             }
             else
             {
-                // Player lost -> eliminated.
-                Show("ELIMINATO!", showContinue: false, showMenu: true);
+                // Player lost -> eliminated. CurrentIndex = opponents beaten before this loss.
+                RecordStreak(run.CurrentIndex);
+                SaveData save = SaveSystem.Load();
+                Show($"ELIMINATO!\nRecord avversari battuti: {save.longestStreak}", showContinue: false, showMenu: true);
             }
+        }
+
+        private void RecordChampion(TournamentRun run)
+        {
+            SaveData save = SaveSystem.Load();
+            save.tournamentsWon++;
+            if (run.TotalMatches > save.longestStreak) save.longestStreak = run.TotalMatches;
+            SaveSystem.Save(save);
+        }
+
+        private void RecordStreak(int beaten)
+        {
+            SaveData save = SaveSystem.Load();
+            if (beaten > save.longestStreak) save.longestStreak = beaten;
+            SaveSystem.Save(save);
         }
 
         private void Show(string message, bool showContinue, bool showMenu)
@@ -87,8 +109,6 @@ namespace BeachVolley.UI
 
         private void OnContinue()
         {
-            // Re-arm exactly like the first match (GameManager in MainMenu -> Bootstrap starts it),
-            // reset the score, write the next match, reload Gameplay.
             MatchSession.Set(TournamentSession.Active.BuildCurrentMatchConfig());
             GameManager.Instance.ResetMatch();
             GameManager.Instance.ChangeState(GameState.MainMenu);

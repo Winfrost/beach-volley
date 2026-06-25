@@ -41,18 +41,13 @@ Modalità: 1 vs CPU e 2 giocatori sullo stesso schermo.
 
 ---
 
-## STATO ATTUALE: FASE 3 IN CORSO
+## STATO ATTUALE: FASE 3 COMPLETATA ✅
 
-Architettura dei contenuti avviata. Fatti i primi due passi (iniezione personaggi +
-seam di setup match). Prossimo: scena menu + caricamento scene + selezione personaggio.
-
-Base end-to-end della Fase 2 intatta:
-- 2 giocatori locali da tastiera (frecce+Spazio / WASD)
-- 1 giocatore vs CPU (predizione balistica della palla)
-- Controlli touch (pulsanti a schermo)
-- Game feel completo via eventi (consolidato in ImpactFeedback)
-- Pixel art pixel-perfect (PPU 25, 480x270 upscale x4)
-- Tre sorgenti input dietro IPlayerInput
+Contenuti completi: personaggi (stat diverse, selezione), modalita 1P/2P, difficolta CPU
+(3 livelli), stadi estetici (selezione), marcatore P1/P2, torneo gauntlet (scala crescente,
+stadi variabili, campione/eliminato), salvataggi (record torneo persistenti). Tutto guidato
+dal MatchConfig e applicato dal GameplayBootstrap (composition root). Selettore di contenuto
+generico riusato per personaggi e stadi.
 
 ---
 
@@ -328,14 +323,30 @@ FX (FX_SandPuff, FX_HitSpark), Audios.
 - **Risolve il debito reset punteggio**: OnContinue chiama ResetMatch -> ogni match riparte 0-0.
 - Verifica: Torneo -> vinci -> "Vinto! Prossimo: X (n/tot)" -> Continua -> match piu duro,
   stadio diverso -> ... -> CAMPIONE / ELIMINATO -> menu. Match singolo: rivincita normale (guardia ok).
+  
+### Passo 8 — Salvataggi: record torneo persistenti ✅ (ULTIMO Fase 3)
+- **Stato di sessione vs dati salvati**: Match/TournamentSession si azzerano a ogni Play
+  (RuntimeInitializeOnLoadMethod); il salvataggio PERSISTE su disco tra sessioni. Due memorie
+  diverse di proposito. Si salva solo cio che e del giocatore e cambia (record); il contenuto
+  (personaggi/stadi) e nel build, non si salva.
+- **SaveData** (Core): schema esplicito (tournamentsWon, longestStreak; commenti per futuri
+  settings/unlock). Classe serializzabile, non cassetto di chiavi.
+- **SaveSystem** (Core, statico): JSON in Application.persistentDataPath. Load (cache, mai
+  null, fallback su errore) / Save (pretty JSON). Scelto file JSON vs PlayerPrefs per schema
+  ordinato e crescita pulita.
+- **TournamentFlow** registra a fine corsa: campione -> tournamentsWon++; eliminato ->
+  longestStreak = max(beaten). Solo a fine torneo, non per match.
+- **RecordDisplay** (UI): legge il save in Start e lo mostra nel menu -> prova visibile della
+  persistenza all'avvio.
+- Verifica: vinci torneo -> "Tornei vinti: 1"; riavvii il Play/la build -> il menu mostra
+  ancora 1 -> persiste. File leggibile in persistentDataPath/save.json (cancellabile per reset).
 
 ### PROSSIMO PASSO (8) — Salvataggi (ULTIMO della Fase 3)
 Persistenza: cosa salvare ora e concreto (impostazioni? record/sblocchi? progresso torneo?).
 Si modella lo schema sul contenuto reale, non si indovina.
 
-### Ordine pianificato Fase 3
-1-6 ✅  7a ✅  7b ✅
-8. Salvataggi  ← ultimo
+### Ordine Fase 3 — TUTTO ✅
+1-6 ✅  7a/7b ✅  8 ✅  -> FASE 3 CHIUSA
 
 ### NODO APERTO (da risolvere alla selezione personaggio)
 - **Tint identita vs distinzione**: oggi il tint viene dal CharacterDefinition. In 2P
