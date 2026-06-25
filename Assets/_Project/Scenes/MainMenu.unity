@@ -2513,6 +2513,7 @@ MonoBehaviour:
   allCharacters:
   - {fileID: 11400000, guid: 6dad59009b778a9418e87e3cbcd098e9, type: 2}
   - {fileID: 11400000, guid: 8fd6860ce91714141bb11d81241b20e9, type: 2}
+  - {fileID: 11400000, guid: d2190c05302ce704c9fa275786653bb4, type: 2}
   difficultyLadder:
   - {fileID: 11400000, guid: 9593d2ac49889294b9eb0d781b96335e, type: 2}
   - {fileID: 11400000, guid: c396387f83f5e5542a4a38ee5585bfa1, type: 2}

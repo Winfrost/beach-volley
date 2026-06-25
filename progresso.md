@@ -310,13 +310,32 @@ FX (FX_SandPuff, FX_HitSpark), Audios.
   in TournamentSession, scrive il match 1 in MatchSession, carica Gameplay.
 - Verifica: Torneo -> match 1 vs avversario casuale, difficolta bassa, stadio dal pool.
   Dopo la vittoria NON avanza ancora (e il 7b): finisce come match normale.
+  
+### Passo 7b — Flusso torneo: avanza/campione/eliminato ✅
+- **Due ascoltatori, una guardia ciascuno**: TournamentFlow e WinScreenController ascoltano
+  entrambi OnMatchEnded; ognuno agisce solo nel suo caso (TournamentFlow se
+  TournamentSession.IsActive, WinScreenController altrimenti). Single responsibility, nessuno
+  tocca l'altro.
+- **Ramificazione post-match** (Player1 = umano, quindi winner==Player1 = giocatore vince):
+  vinto -> run.Advance() -> IsComplete ? CAMPIONE : prossimo avversario; perso -> ELIMINATO.
+- **Avanzare = ricaricare la scena** (avversario/stadio nuovi si applicano solo in
+  Bootstrap.Start). Per ripartire come il primo match: ri-arma il GameManager a MainMenu +
+  ResetMatch, scrive il prossimo MatchConfig in MatchSession, ricarica Gameplay. Nessuna
+  modifica al Bootstrap: riusa il percorso "MainMenu -> Playing" del primo match.
+- **Cast torneo**: avversari = allCharacters meno il giocatore (NO dedup vera: duplicati
+  verrebbero affrontati piu volte). Scala lunga quanto cast univoci - 1. Servono >=3
+  personaggi per una scala con avanzamento.
+- **Risolve il debito reset punteggio**: OnContinue chiama ResetMatch -> ogni match riparte 0-0.
+- Verifica: Torneo -> vinci -> "Vinto! Prossimo: X (n/tot)" -> Continua -> match piu duro,
+  stadio diverso -> ... -> CAMPIONE / ELIMINATO -> menu. Match singolo: rivincita normale (guardia ok).
 
-### PROSSIMO PASSO (7) — Modalita torneo
-Orchestrare N match leggendo/scrivendo MatchConfig. Bracket di personaggi, avanzamento,
-schermata risultati. Primo vero uso del MatchConfig "in sequenza" invece che singolo.
+### PROSSIMO PASSO (8) — Salvataggi (ULTIMO della Fase 3)
+Persistenza: cosa salvare ora e concreto (impostazioni? record/sblocchi? progresso torneo?).
+Si modella lo schema sul contenuto reale, non si indovina.
 
 ### Ordine pianificato Fase 3
-
+1-6 ✅  7a ✅  7b ✅
+8. Salvataggi  ← ultimo
 
 ### NODO APERTO (da risolvere alla selezione personaggio)
 - **Tint identita vs distinzione**: oggi il tint viene dal CharacterDefinition. In 2P
