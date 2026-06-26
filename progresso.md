@@ -34,7 +34,7 @@ Online/pagamenti/evoluzione personaggi = lunghissimo periodo, NON si architettan
 
 ---
 
-# STATO ATTUALE: FASI 0-3 COMPLETATE ✅ — prossima: Fase 4 o 5 (da decidere)
+# STATO ATTUALE: FASI 0-3 ✅ + RICOGNIZIONE MOBILE ✅ — prossima: Fase 4 (Audio)
 
 Il gioco e contenutisticamente completo end-to-end:
 - 2 giocatori locali (tastiera) e 1 vs CPU (predizione balistica). Touch predisposto.
@@ -44,6 +44,9 @@ Il gioco e contenutisticamente completo end-to-end:
 - Torneo gauntlet: scala a difficolta crescente, stadi variabili, campione/eliminato.
 - Salvataggi: record torneo persistenti (JSON su disco).
 - Tutto guidato dal MatchConfig e assemblato dal GameplayBootstrap (composition root).
+- Il gioco gira su device Android reale (build IL2CPP), giocabile 1vsCPU col touch,
+senza sorprese bloccanti rispetto al PC. Selezione input automatica per piattaforma
+attiva. Pronto per la Fase 4 (audio).
 
 ## Piano per fasi
 - Fase 0 Setup ✅ | Fase 1 Prototipo ✅ | Fase 2 Game feel+arte+AI+input ✅
@@ -74,6 +77,12 @@ Dopo la ricognizione -> Fase 4 (audio) con la conoscenza del comportamento reale
 
 ## Sorprese mobile emerse (backlog Fase 5)
 - (da compilare giocando: touch / performance / schermo / UI)
+
+- Nessuna sorpresa BLOCCANTE sul device di test: touch reattivo, performance ok,
+  schermo/UI corretti. I rischi temuti (camera su aspect non-16:9, perf IL2CPP) non
+  si sono presentati.
+- Resta Fase 5 (non bloccante): validazione multi-device, safe-area/notch, iOS,
+  visibilita bottoni touch gia gestita, polish menu.
 
 
 ---
