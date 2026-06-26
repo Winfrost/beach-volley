@@ -68,6 +68,12 @@ Dopo la ricognizione -> Fase 4 (audio) con la conoscenza del comportamento reale
   il contenitore TouchControls solo quando il touch e attivo. Testabile in editor col mouse.
 - [ ] Passo 2: prima build IL2CPP su device.
 
+- [x] Passo 2: prima build IL2CPP su device. Switch piattaforma Android, package
+  com.winfrost.beachvolley, orientamento Landscape, dev build firma debug. Il gioco
+  parte sul telefono e si gioca 1vsCPU col touch.
+
+## Sorprese mobile emerse (backlog Fase 5)
+- (da compilare giocando: touch / performance / schermo / UI)
 
 
 ---

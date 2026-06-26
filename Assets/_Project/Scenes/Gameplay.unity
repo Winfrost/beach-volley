@@ -13463,7 +13463,7 @@ MonoBehaviour:
   player1: {fileID: 718464315}
   player2: {fileID: 1633589708}
   stageDresser: {fileID: 680349636}
-  inputPlatform: 1
+  inputPlatform: 0
   touchControls: {fileID: 1926424697}
   player1Character: {fileID: 11400000, guid: 8fd6860ce91714141bb11d81241b20e9, type: 2}
   player2Character: {fileID: 11400000, guid: 6dad59009b778a9418e87e3cbcd098e9, type: 2}

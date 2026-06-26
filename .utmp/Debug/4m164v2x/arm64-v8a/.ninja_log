@@ -1,0 +1,12 @@
+# ninja log v5
+31	831	8041726459753272	FramePacing/CMakeFiles/swappywrapper.dir/UnitySwappyWrapper.cpp.o	e92e1cecb6200135
+834	1245	8041726463361081	C:/Dev/BeachVolley/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/Debug/4m164v2x/obj/arm64-v8a/libswappywrapper.so	64b56cfae5a67773
+21	2837	8041726479826786	GameActivity/CMakeFiles/game.dir/UGAInputKeyEvent.cpp.o	3d9017d8b578abaa
+15	2915	8041726480592292	GameActivity/CMakeFiles/game.dir/UGAEntry.cpp.o	a3b488d51fc17fbc
+3	2993	8041726480914370	GameActivity/CMakeFiles/game.dir/UGAConfiguration.cpp.o	4a193a7f956b499d
+27	3065	8041726480984570	GameActivity/CMakeFiles/game.dir/UGAInputMotionEvent.cpp.o	f637c48f151f3ef8
+9	3953	8041726487665984	GameActivity/CMakeFiles/game.dir/UGADebug.cpp.o	caa1186ac5b5818c
+24	4587	8041726494568631	GameActivity/CMakeFiles/game.dir/UGASoftKeyboard.cpp.o	64d1b22f7c8dce6d
+18	6049	8041726508817653	GameActivity/CMakeFiles/game.dir/UGAInput.cpp.o	7dc593830caac3ec
+12	7214	8041726521604976	GameActivity/CMakeFiles/game.dir/UGAApplication.cpp.o	5a66e18c1bf70d88
+7215	7605	8041726527360034	C:/Dev/BeachVolley/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/Debug/4m164v2x/obj/arm64-v8a/libgame.so	7ee286e22f341be4
