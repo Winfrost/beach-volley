@@ -8,7 +8,8 @@ namespace BeachVolley.Core
 {
     /// <summary>
     /// Composition root for the Gameplay scene. Ensures the GameManager exists, applies each
-    /// player's character, selects player 2's input from the match mode, dresses the stage,
+    /// player's character, selects the human input source per platform (touch on mobile,
+    /// keyboard on desktop) and player 2's input from the match mode, dresses the stage,
     /// then transitions to Playing once the GameManager has reached MainMenu.
     ///
     /// Config priority: MatchSession.Pending (menu) else the serialized fallback fields below
@@ -28,6 +29,20 @@ namespace BeachVolley.Core
         [SerializeField] private StageDresser stageDresser;
 
         // ============================================================
+        // INPUT PLATFORM
+        // ============================================================
+
+        [Header("Input platform (human player)")]
+        [Tooltip("Auto = touch on mobile, keyboard elsewhere. " +
+                 "ForceTouch/ForceKeyboard override the runtime check so either path " +
+                 "can be exercised in the editor, where isMobilePlatform is always false.")]
+        [SerializeField] private InputPlatformMode inputPlatform = InputPlatformMode.Auto;
+
+        [Tooltip("Container holding the on-screen touch buttons. Shown only when touch is " +
+                 "the active input, hidden on keyboard so the buttons don't clutter desktop.")]
+        [SerializeField] private GameObject touchControls;
+
+        // ============================================================
         // FALLBACK CONFIG (used when no MatchSession is pending)
         // ============================================================
 
@@ -39,6 +54,14 @@ namespace BeachVolley.Core
         [SerializeField] private MatchMode fallbackMode = MatchMode.OnePlayerVsCPU;
         [SerializeField] private AIStats fallbackCpuStats;
         [SerializeField] private StageDefinition fallbackStage;
+
+        // ============================================================
+        // RESOLVED PLAYER 1 PARTS (its input depends on the platform)
+        // ============================================================
+
+        private PlayerController p1Controller;
+        private KeyboardPlayerInput p1Keyboard;
+        private TouchPlayerInput p1Touch;
 
         // ============================================================
         // RESOLVED PLAYER 2 PARTS (its input depends on the match mode)
@@ -56,6 +79,13 @@ namespace BeachVolley.Core
         {
             _ = GameManager.Instance;
 
+            if (player1 != null)
+            {
+                p1Controller = player1.GetComponent<PlayerController>();
+                p1Keyboard = player1.GetComponent<KeyboardPlayerInput>();
+                p1Touch = player1.GetComponent<TouchPlayerInput>();
+            }
+
             if (player2 != null)
             {
                 p2Controller = player2.GetComponent<PlayerController>();
@@ -71,6 +101,7 @@ namespace BeachVolley.Core
                 : BuildFallbackConfig();
 
             ApplyCharacters(config);
+            ConfigurePlayer1Input();
             ConfigurePlayer2Input(config);
             ApplyStage(config);
 
@@ -101,6 +132,60 @@ namespace BeachVolley.Core
         {
             if (player1 != null) player1.Apply(config.player1Character);
             if (player2 != null) player2.Apply(config.player2Character);
+        }
+
+        /// <summary>
+        /// Player 1 is always human. Pick touch on mobile, keyboard on desktop, and show the
+        /// on-screen buttons only when touch is the active source. The mode (1P/2P) doesn't
+        /// matter here: P1 is a person either way.
+        /// </summary>
+        private void ConfigurePlayer1Input()
+        {
+            if (p1Controller == null)
+            {
+                Debug.LogError("[GameplayBootstrap] Player 1 has no PlayerController.", this);
+                return;
+            }
+
+            bool useTouch = ResolveUseTouch();
+
+            if (useTouch)
+            {
+                if (p1Touch == null)
+                {
+                    Debug.LogError("[GameplayBootstrap] Touch requested but Player 1 has no TouchPlayerInput.", this);
+                    return;
+                }
+
+                p1Controller.SetInput(p1Touch);
+            }
+            else
+            {
+                if (p1Keyboard == null)
+                {
+                    Debug.LogError("[GameplayBootstrap] Keyboard requested but Player 1 has no KeyboardPlayerInput.", this);
+                    return;
+                }
+
+                p1Controller.SetInput(p1Keyboard);
+            }
+
+            // Single source of truth for "is touch active" drives button visibility too.
+            if (touchControls != null) touchControls.SetActive(useTouch);
+        }
+
+        /// <summary>
+        /// Resolve the human input source from the serialized mode, falling back to the
+        /// runtime platform check. Centralised so the decision lives in one place.
+        /// </summary>
+        private bool ResolveUseTouch()
+        {
+            switch (inputPlatform)
+            {
+                case InputPlatformMode.ForceTouch: return true;
+                case InputPlatformMode.ForceKeyboard: return false;
+                default: return Application.isMobilePlatform; // Auto
+            }
         }
 
         private void ConfigurePlayer2Input(MatchConfig config)
@@ -167,5 +252,17 @@ namespace BeachVolley.Core
                 Debug.Log($"[GameplayBootstrap] GameManager in state {gm.CurrentState}, not forcing Playing.");
             }
         }
+    }
+
+    /// <summary>
+    /// How GameplayBootstrap chooses the human player's input source.
+    /// Auto follows the runtime platform; the Force* modes let you exercise either
+    /// path in the editor, where Application.isMobilePlatform is always false.
+    /// </summary>
+    public enum InputPlatformMode
+    {
+        Auto,
+        ForceTouch,
+        ForceKeyboard
     }
 }
