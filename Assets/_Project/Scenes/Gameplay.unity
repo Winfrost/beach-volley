@@ -7169,6 +7169,7 @@ MonoBehaviour:
   groundFreeze: 0.06
   sandPuff: {fileID: 1230280411}
   pointSound: {fileID: 8300000, guid: 3eda4a3f7999208408f84f3c378ea647, type: 3}
+  netSound: {fileID: 8300000, guid: bf5acd6a99de1984abb143bd3496f2fb, type: 3}
 --- !u!114 &1049685934
 MonoBehaviour:
   m_ObjectHideFlags: 0

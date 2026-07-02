@@ -34,19 +34,27 @@ Online/pagamenti/evoluzione personaggi = lunghissimo periodo, NON si architettan
 
 ---
 
-# STATO ATTUALE: FASI 0-3 ✅ + RICOGNIZIONE MOBILE ✅ — prossima: Fase 4 (Audio)
+# STATO ATTUALE: FASI 0-3 ✅ + RICOGNIZIONE MOBILE ✅ — in corso: Fase 4 (Audio)
 
-Il gioco e contenutisticamente completo end-to-end:
-- 2 giocatori locali (tastiera) e 1 vs CPU (predizione balistica). Touch predisposto.
-- Game feel completo (colpo direzionale, squash&stretch, shake, hit-stop, particelle, SFX).
-- Pixel art pixel-perfect (PPU 25, 480x270 upscale x4).
-- Menu: scegli personaggi (P1/P2), modalita (1P/2P), difficolta (3 livelli), stadio.
-- Torneo gauntlet: scala a difficolta crescente, stadi variabili, campione/eliminato.
-- Salvataggi: record torneo persistenti (JSON su disco).
-- Tutto guidato dal MatchConfig e assemblato dal GameplayBootstrap (composition root).
-- Il gioco gira su device Android reale (build IL2CPP), giocabile 1vsCPU col touch,
-senza sorprese bloccanti rispetto al PC. Selezione input automatica per piattaforma
-attiva. Pronto per la Fase 4 (audio).
+## Fase 4 — Audio (in corso)
+Ordine deciso: mixer (prerequisito) -> pass SFX -> musica+volume.
+Volume regolabile per ULTIMO: governa il mix completo (SFX + musica), non è "roba della musica".
+
+- [x] Passo 0: AudioMixer GameAudio (Master -> Music, SFX). Output dell'AudioSource di
+  SfxPlayer (scena Gameplay, GameObject Audios) instradato sul gruppo SFX. Zero codice:
+  PlayOneShot rispetta l'Output dell'AudioSource. Parametri volume NON esposti (-> Troncone B).
+
+### Troncone A — pass SFX (in corso)
+Già sonorizzati: colpo player (hitSound), punto a terra (pointSound).
+- [x] Rete: ImpactFeedback ora si iscrive a Ball.OnNetTouched -> HandleNet -> netSound.
+  Handler senza parametro (OnNetTouched è Action puro). Solo suono, per scelta.
+Buchi rimasti: salto (PlayerController senza evento); fine match (GameManager.OnMatchEnded);
+tap UI (opz.).
+
+### Troncone B — musica chiptune + volume (dopo)
+AudioManager cross-scena (DontDestroyOnLoad, root) sul gruppo Music; campi musicVolume/sfxVolume
+in SaveData; slider UI -> parametri mixer esposti. NB mappatura slider->dB LOGARITMICA, 0 a parte.
+
 
 ## Piano per fasi
 - Fase 0 Setup ✅ | Fase 1 Prototipo ✅ | Fase 2 Game feel+arte+AI+input ✅

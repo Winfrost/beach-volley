@@ -9,7 +9,7 @@ namespace BeachVolley.Presentation
     /// one to the underlying mechanisms: CameraShake, HitStop, impact ParticleSystems, SfxPlayer.
     ///
     /// Config is grouped BY EVENT, so this single file answers
-    /// "what happens when the ball is hit / lands?" at a glance.
+    /// "what happens when the ball is hit / lands / clips the net?" at a glance.
     ///
     /// The mechanisms are untouched — only the policy grows. BallSquashStretch stays
     /// separate on purpose: it is ball-local visual, not scene-level feedback.
@@ -54,6 +54,10 @@ namespace BeachVolley.Presentation
         [Tooltip("Sound played when the ball lands (a point). Optional (can be left empty).")]
         [SerializeField] private AudioClip pointSound;
 
+        [Header("On net touch")]
+        [Tooltip("Sound played when the ball clips the net. Optional (can be left empty).")]
+        [SerializeField] private AudioClip netSound;
+
         // ============================================================
         // UNITY LIFECYCLE
         // ============================================================
@@ -70,6 +74,7 @@ namespace BeachVolley.Presentation
             if (ball == null) return;
             ball.OnHitByPlayer += HandleHit;
             ball.OnGroundTouched += HandleGround;
+            ball.OnNetTouched += HandleNet;
         }
 
         private void OnDisable()
@@ -77,6 +82,7 @@ namespace BeachVolley.Presentation
             if (ball == null) return;
             ball.OnHitByPlayer -= HandleHit;
             ball.OnGroundTouched -= HandleGround;
+            ball.OnNetTouched -= HandleNet;
         }
 
         // ============================================================
@@ -97,6 +103,13 @@ namespace BeachVolley.Presentation
             Freeze(groundFreeze);
             Burst(sandPuff);
             PlaySound(pointSound);
+        }
+
+        // Net touch carries no court side: OnNetTouched is a parameterless Action,
+        // unlike the hit/ground events. For now the response is sound-only.
+        private void HandleNet()
+        {
+            PlaySound(netSound);
         }
 
         // ============================================================
