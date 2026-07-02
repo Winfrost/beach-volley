@@ -1069,6 +1069,7 @@ GameObject:
   - component: {fileID: 718464315}
   - component: {fileID: 718464316}
   - component: {fileID: 718464317}
+  - component: {fileID: 718464318}
   m_Layer: 0
   m_Name: 'Player1 '
   m_TagString: Player1
@@ -1229,6 +1230,19 @@ MonoBehaviour:
   leftButton: {fileID: 305269805}
   rightButton: {fileID: 1564778055}
   jumpButton: {fileID: 994904157}
+--- !u!114 &718464318
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 718464308}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1885eb64c38e6ac4a87ecd10301d9a4a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BeachVolley.Presentation.PlayerFeedback
+  jumpSound: {fileID: 8300000, guid: 0d4513586a3f7e94c9f75e6faec8eafd, type: 3}
 --- !u!1 &851293987
 GameObject:
   m_ObjectHideFlags: 0
@@ -13193,6 +13207,7 @@ GameObject:
   - component: {fileID: 1633589708}
   - component: {fileID: 1633589709}
   - component: {fileID: 1633589710}
+  - component: {fileID: 1633589711}
   m_Layer: 0
   m_Name: Player2
   m_TagString: Player2
@@ -13352,6 +13367,19 @@ MonoBehaviour:
   markerRenderer: {fileID: 1561553668}
   player1Color: {r: 1, g: 0, b: 0, a: 1}
   player2Color: {r: 0.2, g: 0.4, b: 1, a: 1}
+--- !u!114 &1633589711
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1633589701}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1885eb64c38e6ac4a87ecd10301d9a4a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BeachVolley.Presentation.PlayerFeedback
+  jumpSound: {fileID: 8300000, guid: 0d4513586a3f7e94c9f75e6faec8eafd, type: 3}
 --- !u!1 &1665325333
 GameObject:
   m_ObjectHideFlags: 0

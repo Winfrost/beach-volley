@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace BeachVolley.Gameplay
@@ -7,6 +8,10 @@ namespace BeachVolley.Gameplay
     /// Reads INTENT from an IPlayerInput component on the same GameObject — it does not
     /// know or care whether that intent comes from a keyboard, the AI, or touch.
     /// Movement physics (the mechanism) lives here; the input source (the policy) is swappable.
+    ///
+    /// Announces gameplay moments as events (e.g. OnJumped) but owns NO feedback:
+    /// audio/visual reactions live in separate listeners (see PlayerFeedback), mirroring how
+    /// Ball announces and ImpactFeedback reacts.
     /// </summary>
     [RequireComponent(typeof(Rigidbody2D))]
     public class PlayerController : MonoBehaviour
@@ -22,6 +27,17 @@ namespace BeachVolley.Gameplay
         [Header("Ground Detection")]
         [Tooltip("LayerMask used to detect what counts as ground.")]
         [SerializeField] private LayerMask groundLayer;
+
+        // ============================================================
+        // EVENTS
+        // ============================================================
+
+        /// <summary>
+        /// Raised the moment this player actually leaves the ground on a jump
+        /// (grounded + jump press consumed). Carries no data: it just announces
+        /// "this player jumped". Listeners (e.g. PlayerSfx) decide the reaction.
+        /// </summary>
+        public event Action OnJumped;
 
         // ============================================================
         // RUNTIME STATE
@@ -131,6 +147,10 @@ namespace BeachVolley.Gameplay
                 Vector2 velocity = rb.linearVelocity;
                 velocity.y = stats.jumpForce;
                 rb.linearVelocity = velocity;
+
+                // Announce the jump AFTER it has actually been applied. Listeners react;
+                // this controller stays feedback-agnostic.
+                OnJumped?.Invoke();
             }
         }
 

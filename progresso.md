@@ -50,6 +50,10 @@ Già sonorizzati: colpo player (hitSound), punto a terra (pointSound).
   Handler senza parametro (OnNetTouched è Action puro). Solo suono, per scelta.
 Buchi rimasti: salto (PlayerController senza evento); fine match (GameManager.OnMatchEnded);
 tap UI (opz.).
+- [x] Salto: PlayerController espone OnJumped (invocato a salto reale: grounded + press
+  consumato); nuovo PlayerFeedback (uno per player, in Presentation) ascolta e suona jumpSound.
+  Fratello di ImpactFeedback (palla->ImpactFeedback, player->PlayerFeedback). Nome scelto
+  PlayerFeedback e NON PlayerSfx per non confonderlo con il meccanismo SfxPlayer.
 
 ### Troncone B — musica chiptune + volume (dopo)
 AudioManager cross-scena (DontDestroyOnLoad, root) sul gruppo Music; campi musicVolume/sfxVolume
