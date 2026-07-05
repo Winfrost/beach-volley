@@ -55,9 +55,13 @@ Famiglia feedback completa: palla->ImpactFeedback, player->PlayerFeedback, match
 Resta (opz.): tap UI/menu -> probabile Fase 5 (polish).  
   
 
-### Troncone B — musica chiptune + volume (dopo)
-AudioManager cross-scena (DontDestroyOnLoad, root) sul gruppo Music; campi musicVolume/sfxVolume
-in SaveData; slider UI -> parametri mixer esposti. NB mappatura slider->dB LOGARITMICA, 0 a parte.
+### Troncone B — musica chiptune + volume (in corso)
+Roadmap: B1 MusicPlayer -> B2 parametri mixer+VolumeController (mappatura log, 0=-80dB)
+-> B3 SaveData volumi + applicazione all'avvio -> B4 slider UI.
+- [x] B1: MusicPlayer meccanismo persistente (root + DontDestroyOnLoad), traccia in loop
+  sul gruppo Music. Meccanismo puro (COSA suona, non QUANTO forte). Dedup singleton ->
+  doppione in più scene sicuro, musica ininterrotta tra menu e gameplay. Placeholder
+  bgm_loop 8s sintetizzato. Una traccia per tutte le scene in v1 (per-stage = futuro al bordo).
 
 
 ## Piano per fasi
