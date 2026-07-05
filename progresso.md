@@ -66,6 +66,11 @@ Roadmap: B1 MusicPlayer -> B2 parametri mixer+VolumeController (mappatura log, 0
   (autorità unica del volume, singleton di scena) mappa lineare 0..1 -> dB con log10*20,
   0 forzato a -80 dB (silenzio). Applica ai param esposti; NON decide i valori (solo il COME).
   Hook OnValidate temporaneo (solo editor) per provare la curva live. Prossimo: B3 (SaveData).
+- [x] B3: SaveData guadagna musicVolume/sfxVolume (default 1). SaveSystem.Load ->
+  FromJsonOverwrite su istanza fresca = retrocompat (campi mancanti restano ai default,
+  niente muto sui vecchi save). Nuovo VolumeSettings (ponte SaveData<->VolumeController):
+  carica e applica al boot, i setter applicano+salvano. VolumeController ora autorità pura.
+  Fonte di verità del volume = SaveData. Prossimo: B4 (slider UI).  
 
 ## Piano per fasi
 - Fase 0 Setup ✅ | Fase 1 Prototipo ✅ | Fase 2 Game feel+arte+AI+input ✅

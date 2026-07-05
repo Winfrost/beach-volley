@@ -13,9 +13,10 @@ namespace BeachVolley.Presentation
     /// log10(0) is -infinity, so 0 (and anything at/below a tiny epsilon) is forced to
     /// the mixer floor (-80 dB = silence).
     ///
-    /// Single global service (scene-scoped singleton) so B3 (apply saved volumes at startup)
-    /// and B4 (UI sliders) reach it via VolumeController.Instance instead of wiring the mixer
-    /// in several places. It does NOT decide the VALUES — it only knows HOW to apply them.
+    /// PURE authority: it knows only HOW to apply a value, never WHICH value. It applies
+    /// nothing on its own — VolumeSettings decides the values (from SaveData) and calls the
+    /// setters here. Single global service (scene-scoped singleton) so VolumeSettings and the
+    /// B4 UI reach it via VolumeController.Instance.
     /// </summary>
     public class VolumeController : MonoBehaviour
     {
@@ -34,11 +35,6 @@ namespace BeachVolley.Presentation
 
         [Tooltip("Exposed parameter name for the SFX group volume (must match the mixer).")]
         [SerializeField] private string sfxParam = "SfxVol";
-
-        [Header("Current values (0 = silent, 1 = full)")]
-        [Tooltip("Applied on Start. In B3 these get loaded from SaveData; in B4 the UI sliders drive them.")]
-        [Range(0f, 1f)][SerializeField] private float musicVolume = 1f;
-        [Range(0f, 1f)][SerializeField] private float sfxVolume = 1f;
 
         // Mixer attenuation floor: Unity treats -80 dB as silence.
         private const float MinDecibels = -80f;
@@ -69,12 +65,9 @@ namespace BeachVolley.Presentation
 
         private void Start()
         {
-            // Self-check: confirm the exposed parameters actually exist before we rely on them.
+            // Diagnostic only — does NOT apply any value. VolumeSettings drives the actual
+            // volumes from SaveData (and its Start runs after all Awakes, so Instance is ready).
             VerifyExposedParams();
-
-            // Baseline apply. B3 will overwrite these from SaveData before/at this point.
-            SetMusicVolume(musicVolume);
-            SetSfxVolume(sfxVolume);
         }
 
         // ============================================================
@@ -82,18 +75,10 @@ namespace BeachVolley.Presentation
         // ============================================================
 
         /// <summary>Set the Music group volume from a linear 0..1 value.</summary>
-        public void SetMusicVolume(float linear01)
-        {
-            musicVolume = Mathf.Clamp01(linear01);
-            Apply(musicParam, musicVolume);
-        }
+        public void SetMusicVolume(float linear01) => Apply(musicParam, Mathf.Clamp01(linear01));
 
         /// <summary>Set the SFX group volume from a linear 0..1 value.</summary>
-        public void SetSfxVolume(float linear01)
-        {
-            sfxVolume = Mathf.Clamp01(linear01);
-            Apply(sfxParam, sfxVolume);
-        }
+        public void SetSfxVolume(float linear01) => Apply(sfxParam, Mathf.Clamp01(linear01));
 
         // ============================================================
         // MAPPING + DISPATCH
@@ -126,8 +111,7 @@ namespace BeachVolley.Presentation
 
         /// <summary>
         /// One-time startup diagnostic: GetFloat returns false if a parameter is not exposed,
-        /// so this pinpoints a naming/exposure problem the moment you press Play — no need to
-        /// drag anything. Purely informational.
+        /// so this pinpoints a naming/exposure problem the moment you press Play. Informational.
         /// </summary>
         private void VerifyExposedParams()
         {
@@ -143,16 +127,5 @@ namespace BeachVolley.Presentation
                     $"[VolumeController] SFX param '{sfxParam}' NOT found on the mixer. " +
                     "Expose the SFX group's Volume and rename it to match (exact name/case).", this);
         }
-
-#if UNITY_EDITOR
-        // TEMPORARY verification hook: drag the volume fields in the Inspector during Play
-        // to hear the curve live. Superseded by the real UI sliders in B4.
-        private void OnValidate()
-        {
-            if (!Application.isPlaying) return;
-            SetMusicVolume(musicVolume);
-            SetSfxVolume(sfxVolume);
-        }
-#endif
     }
 }

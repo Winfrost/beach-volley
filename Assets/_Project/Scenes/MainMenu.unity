@@ -2389,6 +2389,7 @@ GameObject:
   - component: {fileID: 1259770653}
   - component: {fileID: 1259770652}
   - component: {fileID: 1259770655}
+  - component: {fileID: 1259770656}
   m_Layer: 0
   m_Name: MusicPlayer
   m_TagString: Untagged
@@ -2536,6 +2537,18 @@ MonoBehaviour:
   mixer: {fileID: 24100000, guid: 9de1f4d389438e44fad6e55b10581e1f, type: 2}
   musicParam: MusicVol
   sfxParam: SfxVol
+--- !u!114 &1259770656
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1259770651}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee89e08b1c5e1aa499cbbb645b522aba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BeachVolley.Presentation.VolumeSettings
   musicVolume: 1
   sfxVolume: 1
 --- !u!1 &1298914527

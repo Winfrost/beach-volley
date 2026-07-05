@@ -18,16 +18,19 @@ namespace BeachVolley.Core
         {
             if (cached != null) return cached;
 
+            // Start from a fresh instance so its field initializers (e.g. volumes = 1) act as
+            // defaults. FromJsonOverwrite then fills in only the fields PRESENT in the JSON,
+            // leaving anything missing at those defaults. This is what keeps an older save
+            // (written before a field existed) from silently zeroing that field on load.
+            cached = new SaveData();
+
             try
             {
                 if (File.Exists(FilePath))
                 {
                     string json = File.ReadAllText(FilePath);
-                    cached = JsonUtility.FromJson<SaveData>(json) ?? new SaveData();
-                }
-                else
-                {
-                    cached = new SaveData();
+                    if (!string.IsNullOrWhiteSpace(json))
+                        JsonUtility.FromJsonOverwrite(json, cached);
                 }
             }
             catch (System.Exception e)
