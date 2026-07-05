@@ -62,7 +62,10 @@ Roadmap: B1 MusicPlayer -> B2 parametri mixer+VolumeController (mappatura log, 0
   sul gruppo Music. Meccanismo puro (COSA suona, non QUANTO forte). Dedup singleton ->
   doppione in più scene sicuro, musica ininterrotta tra menu e gameplay. Placeholder
   bgm_loop 8s sintetizzato. Una traccia per tutte le scene in v1 (per-stage = futuro al bordo).
-
+- [x] B2: parametri Music/SFX esposti sul mixer come MusicVol/SfxVol. VolumeController
+  (autorità unica del volume, singleton di scena) mappa lineare 0..1 -> dB con log10*20,
+  0 forzato a -80 dB (silenzio). Applica ai param esposti; NON decide i valori (solo il COME).
+  Hook OnValidate temporaneo (solo editor) per provare la curva live. Prossimo: B3 (SaveData).
 
 ## Piano per fasi
 - Fase 0 Setup ✅ | Fase 1 Prototipo ✅ | Fase 2 Game feel+arte+AI+input ✅
