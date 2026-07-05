@@ -44,16 +44,16 @@ Volume regolabile per ULTIMO: governa il mix completo (SFX + musica), non è "ro
   SfxPlayer (scena Gameplay, GameObject Audios) instradato sul gruppo SFX. Zero codice:
   PlayOneShot rispetta l'Output dell'AudioSource. Parametri volume NON esposti (-> Troncone B).
 
-### Troncone A — pass SFX (in corso)
+### Troncone A — pass SFX (quasi chiuso)
 Già sonorizzati: colpo player (hitSound), punto a terra (pointSound).
-- [x] Rete: ImpactFeedback ora si iscrive a Ball.OnNetTouched -> HandleNet -> netSound.
-  Handler senza parametro (OnNetTouched è Action puro). Solo suono, per scelta.
-Buchi rimasti: salto (PlayerController senza evento); fine match (GameManager.OnMatchEnded);
-tap UI (opz.).
-- [x] Salto: PlayerController espone OnJumped (invocato a salto reale: grounded + press
-  consumato); nuovo PlayerFeedback (uno per player, in Presentation) ascolta e suona jumpSound.
-  Fratello di ImpactFeedback (palla->ImpactFeedback, player->PlayerFeedback). Nome scelto
-  PlayerFeedback e NON PlayerSfx per non confonderlo con il meccanismo SfxPlayer.
+- [x] Rete: ImpactFeedback -> Ball.OnNetTouched -> netSound.
+- [x] Salto: PlayerController.OnJumped -> PlayerFeedback -> jumpSound (uno per player).
+- [x] Fine match: MatchFeedback (scene-scoped) -> GameManager.OnMatchEnded -> matchEndSound.
+  NEUTRO per scelta (fischio finale). Vittoria/sconfitta = estensione futura al bordo
+  (GameplayBootstrap inietta il lato umano), NON riscrittura.
+Famiglia feedback completa: palla->ImpactFeedback, player->PlayerFeedback, match->MatchFeedback.
+Resta (opz.): tap UI/menu -> probabile Fase 5 (polish).  
+  
 
 ### Troncone B — musica chiptune + volume (dopo)
 AudioManager cross-scena (DontDestroyOnLoad, root) sul gruppo Music; campi musicVolume/sfxVolume
