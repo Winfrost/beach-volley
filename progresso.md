@@ -66,6 +66,7 @@ Il gioco e contenutisticamente completo end-to-end e ora anche SONORO:
 - Resta a Fase 5 (non bloccante): multi-device, safe-area/notch, iOS, polish menu.
 
 Fase 5 · Safe-area: SafeAreaFitter (Screen.safeArea → anchor normalizzati, indipendente dal Canvas Scaler; Play-mode only). Applicato al MainMenu avvolgendo MenuColumn in un container SafeArea. Gameplay al passo successivo.
+Fase 5 · Safe-area (Gameplay): container SafeArea avvolge ScoreText + TouchControls; WinPanel/TournamentPanel restano figli diretti del Canvas (sfondo fine-match edge-to-edge, contenuto centrato già sicuro). Safe-area chiusa su entrambe le scene.
 
 ---
 
