@@ -67,6 +67,9 @@ Il gioco e contenutisticamente completo end-to-end e ora anche SONORO:
 
 Fase 5 · Safe-area: SafeAreaFitter (Screen.safeArea → anchor normalizzati, indipendente dal Canvas Scaler; Play-mode only). Applicato al MainMenu avvolgendo MenuColumn in un container SafeArea. Gameplay al passo successivo.
 Fase 5 · Safe-area (Gameplay): container SafeArea avvolge ScoreText + TouchControls; WinPanel/TournamentPanel restano figli diretti del Canvas (sfondo fine-match edge-to-edge, contenuto centrato già sicuro). Safe-area chiusa su entrambe le scene.
+Backlog / molto dopo — 2P touch: rimandato (caso d'uso raro su mobile; il layer input è già astratto, si aggiunge al bordo senza debito).
+Debiti Fase 5 da non dimenticare — nascondere il bottone "2 Giocatori" sulle piattaforme touch (oggi P2 su mobile non ha input → match ingiocabile). Stesso pattern della riga difficoltà (visibile solo in 1P). Va chiuso prima della pubblicazione; naturale collocarlo nell'estetica/layout menu.
+Fase 5 · Tap UI SFX: UIClickFeedback (Presentation) auto-aggancia il click a tutti i Button statici del Canvas via SfxPlayer → rispetta lo slider SFX. Aggiunto SfxPlayer al MainMenu. Swatch runtime e TouchButton esclusi per scelta. Placeholder ui_click.wav sintetizzato. Debito tap UI di Fase 4 chiuso.
 
 ---
 
