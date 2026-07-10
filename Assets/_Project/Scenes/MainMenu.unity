@@ -3488,9 +3488,6 @@ MonoBehaviour:
   easyStats: {fileID: 11400000, guid: 9593d2ac49889294b9eb0d781b96335e, type: 2}
   mediumStats: {fileID: 11400000, guid: c396387f83f5e5542a4a38ee5585bfa1, type: 2}
   hardStats: {fileID: 11400000, guid: 70d80881327ea244ba20e358c197a539, type: 2}
-  onePlayerButton: {fileID: 1712809994}
-  twoPlayersButton: {fileID: 1420534313}
-  difficultyRow: {fileID: 342652735}
   easyButton: {fileID: 1054009658}
   mediumButton: {fileID: 914418718}
   hardButton: {fileID: 1104037008}
@@ -3568,9 +3565,9 @@ RectTransform:
   - {fileID: 167211626}
   m_Father: {fileID: 1621092940}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 270, y: -15}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1420534313
@@ -4369,7 +4366,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1621092940
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4386,9 +4383,9 @@ RectTransform:
   - {fileID: 1420534312}
   m_Father: {fileID: 1971536488}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 150, y: -285}
   m_SizeDelta: {x: 0, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1621092941
@@ -4451,9 +4448,9 @@ RectTransform:
   - {fileID: 1214311038}
   m_Father: {fileID: 1621092940}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 80, y: -15}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1712809994

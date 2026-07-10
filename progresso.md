@@ -70,7 +70,10 @@ Fase 5 · Safe-area (Gameplay): container SafeArea avvolge ScoreText + TouchCont
 Backlog / molto dopo — 2P touch: rimandato (caso d'uso raro su mobile; il layer input è già astratto, si aggiunge al bordo senza debito).
 Debiti Fase 5 da non dimenticare — nascondere il bottone "2 Giocatori" sulle piattaforme touch (oggi P2 su mobile non ha input → match ingiocabile). Stesso pattern della riga difficoltà (visibile solo in 1P). Va chiuso prima della pubblicazione; naturale collocarlo nell'estetica/layout menu.
 Fase 5 · Tap UI SFX: UIClickFeedback (Presentation) auto-aggancia il click a tutti i Button statici del Canvas via SfxPlayer → rispetta lo slider SFX. Aggiunto SfxPlayer al MainMenu. Swatch runtime e TouchButton esclusi per scelta. Placeholder ui_click.wav sintetizzato. Debito tap UI di Fase 4 chiuso.
-
+Scope v1: SOLO single player. 2P locale (stesso telefono) e multiplayer online → entrambi rimandati e da valutare dopo il completamento del single-player. Nessun debito: input già astratto (IPlayerInput) per il 2P locale al bordo; l'online è un layer esterno, non si architetta ora.
+Menu (in estetica/layout): togliere la riga modalità ModeRow_G (o nascondere il 2P) — in v1 c'è solo 1P. Regola di visibilità, si chiude nello step estetica.
+Fase 5 · Menu (deterministico): rimossa ModeRow_G (1P/2P) — v1 solo single-player. MainMenuController costruisce sempre OnePlayerVsCPU, difficoltà sempre visibile. MatchMode.TwoPlayers resta in Core per il 2P locale futuro. Torneo invariato.
+Appeso a step B (layout/flusso): nascondere P2/difficoltà/stadio in intento-torneo richiede uno stato di modalità nel menu (bivio UX: due bottoni-lancio vs "scegli modalità → configura → avvia"). Da decidere lì.
 ---
 
 # ARCHITETTURA — modello mentale (leggere prima di tutto)

@@ -8,9 +8,13 @@ using BeachVolley.AI;
 namespace BeachVolley.UI
 {
     /// <summary>
-    /// Orchestrates the main menu: collects the player's choices (mode, difficulty, the two
-    /// characters, the stage), builds a MatchConfig, hands it to MatchSession, and loads the
-    /// Gameplay scene. Pure policy: no game logic.
+    /// Orchestrates the main menu: collects the player's choices (difficulty, the two
+    /// characters, the stage), builds a single-match MatchConfig vs CPU, hands it to
+    /// MatchSession, and loads the Gameplay scene. Pure policy: no game logic.
+    ///
+    /// v1 is single-player only: every match built here is OnePlayerVsCPU. Local 2P and
+    /// online are parked; the input layer stays abstracted so they can attach later without
+    /// touching this policy. MatchMode.TwoPlayers still exists in Core for that future.
     /// </summary>
     public class MainMenuController : MonoBehaviour
     {
@@ -26,12 +30,7 @@ namespace BeachVolley.UI
         [SerializeField] private AIStats mediumStats;
         [SerializeField] private AIStats hardStats;
 
-        [Header("Mode buttons")]
-        [SerializeField] private Button onePlayerButton;
-        [SerializeField] private Button twoPlayersButton;
-
-        [Header("Difficulty UI (shown only in 1P)")]
-        [SerializeField] private GameObject difficultyRow;
+        [Header("Difficulty UI")]
         [SerializeField] private Button easyButton;
         [SerializeField] private Button mediumButton;
         [SerializeField] private Button hardButton;
@@ -40,30 +39,14 @@ namespace BeachVolley.UI
         [SerializeField] private Color selectedColor = Color.white;
         [SerializeField] private Color unselectedColor = new Color(1f, 1f, 1f, 0.4f);
 
-        private MatchMode selectedMode = MatchMode.TwoPlayers;
         private AIStats selectedCpuStats;
 
         private void Start()
         {
+            // Difficulty is always relevant now (every match is vs CPU), so the row stays
+            // visible; we just set the default selection.
             selectedCpuStats = mediumStats;
-            ApplyMode(MatchMode.TwoPlayers);
             HighlightDifficulty(mediumButton);
-        }
-
-        // ---- Mode ----
-
-        public void OnSelectTwoPlayers() => ApplyMode(MatchMode.TwoPlayers);
-        public void OnSelectOnePlayer() => ApplyMode(MatchMode.OnePlayerVsCPU);
-
-        private void ApplyMode(MatchMode mode)
-        {
-            selectedMode = mode;
-            bool cpu = mode == MatchMode.OnePlayerVsCPU;
-
-            if (difficultyRow != null) difficultyRow.SetActive(cpu);
-
-            Tint(onePlayerButton, cpu);
-            Tint(twoPlayersButton, !cpu);
         }
 
         // ---- Difficulty ----
@@ -97,8 +80,8 @@ namespace BeachVolley.UI
             {
                 player1Character = p1,
                 player2Character = p2,
-                mode = selectedMode,
-                cpuStats = selectedMode == MatchMode.OnePlayerVsCPU ? selectedCpuStats : null,
+                mode = MatchMode.OnePlayerVsCPU,
+                cpuStats = selectedCpuStats,
                 stage = stage, // null is fine -> Gameplay keeps its current sprites
             });
 
