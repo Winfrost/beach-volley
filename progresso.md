@@ -74,6 +74,7 @@ Scope v1: SOLO single player. 2P locale (stesso telefono) e multiplayer online �
 Menu (in estetica/layout): togliere la riga modalità ModeRow_G (o nascondere il 2P) — in v1 c'è solo 1P. Regola di visibilità, si chiude nello step estetica.
 Fase 5 · Menu (deterministico): rimossa ModeRow_G (1P/2P) — v1 solo single-player. MainMenuController costruisce sempre OnePlayerVsCPU, difficoltà sempre visibile. MatchMode.TwoPlayers resta in Core per il 2P locale futuro. Torneo invariato.
 Appeso a step B (layout/flusso): nascondere P2/difficoltà/stadio in intento-torneo richiede uno stato di modalità nel menu (bivio UX: due bottoni-lancio vs "scegli modalità → configura → avvia"). Da decidere lì.
+Fase 5 · Step B — font: adottato Pixel Operator (CC0) come famiglia unica (Bold=titolo, Regular=corpo). TMP asset in RASTER + Filter Point, taglie a multipli interi della nativa. Palette scelta: "caldo spiaggia" (da applicare allo skin).
 ---
 
 # ARCHITETTURA — modello mentale (leggere prima di tutto)
