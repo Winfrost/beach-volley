@@ -75,6 +75,9 @@ Menu (in estetica/layout): togliere la riga modalità ModeRow_G (o nascondere il
 Fase 5 · Menu (deterministico): rimossa ModeRow_G (1P/2P) — v1 solo single-player. MainMenuController costruisce sempre OnePlayerVsCPU, difficoltà sempre visibile. MatchMode.TwoPlayers resta in Core per il 2P locale futuro. Torneo invariato.
 Appeso a step B (layout/flusso): nascondere P2/difficoltà/stadio in intento-torneo richiede uno stato di modalità nel menu (bivio UX: due bottoni-lancio vs "scegli modalità → configura → avvia"). Da decidere lì.
 Fase 5 · Step B — font: adottato Pixel Operator (CC0) come famiglia unica (Bold=titolo, Regular=corpo). TMP asset in RASTER + Filter Point, taglie a multipli interi della nativa. Palette scelta: "caldo spiaggia" (da applicare allo skin).
+Fase 5 · Step B — skin: frame bottone + SelectedMark in 9-slice (PPU 25, Filter Point, border 4). SelectedMark Simple→Sliced (fix deformazione angoli). Palette spiaggia applicata (sabbia/blu/corallo). Art placeholder, da sostituire con quella definitiva.
+
+
 ---
 
 # ARCHITETTURA — modello mentale (leggere prima di tutto)
