@@ -6,10 +6,7 @@
 
 ## Visione
 Videogioco di beach volley per Android/iOS, pixel art retro, da pubblicare sugli store
-(possibile monetizzazione). **Scope v1: SOLO single player** (1 vs CPU + torneo gauntlet).
-Il 2P locale e il multiplayer online sono RIMANDATI e da valutare dopo il completamento
-del single-player. Nessun debito: il layer input e gia astratto (IPlayerInput), il 2P locale
-si aggiunge al bordo; l'online e un layer esterno, non si architetta ora.
+(possibile monetizzazione). Modalita: 1 vs CPU e 2 giocatori locali. NIENTE online per v1.
 
 ## Stack
 - Unity 6 (LTS), C#, Visual Studio Community (workload Unity)
@@ -35,81 +32,51 @@ Online/pagamenti/evoluzione personaggi/musica-per-stage = lunghissimo periodo, N
 - Claude fornisce sempre file INTERI quando li modifica (non frammenti), come file da scaricare.
 - I messaggi di commit e gli aggiornamenti di progresso.md stanno in chat (non nei file).
 - Commit mess: prima riga concisa; corpo opzionale.
-- Placeholder generati proceduralmente per sbloccare prima di avere gli asset veri:
-  audio via Python/numpy (WAV), sprite via Python/PIL (PNG).
+- Placeholder audio generati proceduralmente (Python/numpy WAV) per sbloccare l'implementazione
+  prima di avere gli asset veri.
 
 ---
 
-# STATO ATTUALE: FASI 0-5 COMPLETE — prossima: Fase 6 (Pubblicazione)
+# STATO ATTUALE: FASI 0-3 + RICOGNIZIONE MOBILE + FASE 4 AUDIO — prossima: Fase 5 (Mobile e polish)
 
-Il gioco e completo end-to-end, sonoro E rifinito per mobile. Single-player pronto.
-- 1 vs CPU (predizione balistica) + torneo gauntlet. Touch funzionante; input per piattaforma.
-  (Il motore regge ancora il 2P tastiera via il layer input astratto, ma il menu v1 espone solo 1P.)
+Il gioco e contenutisticamente completo end-to-end e ora anche SONORO:
+- 2 giocatori locali (tastiera) e 1 vs CPU (predizione balistica). Touch predisposto.
 - Game feel completo (colpo direzionale, squash&stretch, shake, hit-stop, particelle, SFX).
 - Pixel art pixel-perfect (PPU 25, 480x270 upscale x4).
-- Menu v1: scegli personaggio (P1) + character CPU (SelectorP2), difficolta (3 livelli), stadio, VOLUMI.
-  Font Pixel Operator, bottoni 9-slice, safe-area, layout rifinito.
+- Menu: scegli personaggi (P1/P2), modalita (1P/2P), difficolta (3 livelli), stadio, VOLUMI.
+- Torneo gauntlet: scala a difficolta crescente, stadi variabili, campione/eliminato.
 - Salvataggi: record torneo + volumi (JSON su disco).
-- Audio: SFX di gioco + tap UI + musica chiptune in loop + volume musica/SFX regolabile e persistente.
-- Gira su device Android reale (build IL2CPP). Gate di validazione multi-device DA SPUNTARE sull'hardware.
+- AUDIO: pass SFX di gioco completo + musica chiptune in loop + volume musica/SFX regolabile e persistente.
+- Gira su device Android reale (build IL2CPP), 1vsCPU col touch. Selezione input per piattaforma.
 
 ## Piano per fasi
 - Fase 0 Setup | Fase 1 Prototipo | Fase 2 Game feel+arte+AI+input
-- Fase 3 Contenuti | Fase 4 Audio
-- **Fase 5 Mobile & Polish (APPENA CHIUSA — gate multi-device da spuntare su hardware)**
+- Fase 3 Contenuti
+- **Fase 4 Audio (APPENA CHIUSA)**
+- Fase 5 Mobile e polish (2P touch, tap UI, safe-area/notch, multi-schermo, performance, estetica menu)
 - Fase 6 Pubblicazione (incl. pass iOS)
 
-## Ricognizione mobile (fatta in Fase 5, pezzo anticipato)
-- Selezione input umano per piattaforma: GameplayBootstrap sceglie via InputPlatformMode
-  (Auto/ForceTouch/ForceKeyboard); TouchControls visibili solo in touch.
-- Prima build IL2CPP su device: package com.winfrost.beachvolley, Landscape. Parte, gioca 1vsCPU col touch.
+## Ricognizione mobile (fatta, pezzo anticipato di Fase 5)
+- Selezione input umano per piattaforma: Player1 ospita Keyboard + Touch; GameplayBootstrap
+  sceglie via InputPlatformMode (Auto/ForceTouch/ForceKeyboard), TouchControls visibili solo in touch.
+- Prima build IL2CPP su device: package com.winfrost.beachvolley, Landscape, dev build.
+  Parte e si gioca 1vsCPU col touch.
 - Nessuna sorpresa BLOCCANTE: touch reattivo, performance ok, schermo/UI corretti.
   I rischi temuti (camera su aspect non-16:9, perf IL2CPP) non si sono presentati.
+- Resta a Fase 5 (non bloccante): multi-device, safe-area/notch, iOS, polish menu.
 
----
-
-# FASE 5 — MOBILE & POLISH (consolidata)
-
-**Safe-area / notch**
-- SafeAreaFitter (UI): mappa Screen.safeArea in anchor NORMALIZZATI del RectTransform, quindi
-  indipendente dal Canvas Scaler (contano solo le proporzioni, non i pixel). Play-mode only
-  (niente ExecuteAlways/OnValidate). Su schermo senza cutout gli anchor diventano 0..1 -> nulla si muove.
-- MainMenu: MenuColumn avvolto in un container "SafeArea".
-- Gameplay: ScoreText + TouchControls in un container "SafeArea"; WinPanel/TournamentPanel restano
-  figli diretti del Canvas -> sfondo fine-match EDGE-TO-EDGE, contenuto centrato gia sicuro.
-- Regola: sfondi/overlay full-bleed vanno FUORI dal container SafeArea; la UI ai bordi ci va DENTRO.
-
-**Tap UI SFX**
-- UIClickFeedback (Presentation): allo Start aggancia il click a tutti i Button STATICI sotto il Canvas
-  (GetComponentsInChildren, includeInactive) instradando via SfxPlayer -> rispetta lo slider SFX.
-- SfxPlayer aggiunto anche al MainMenu (prima solo in Gameplay). Placeholder ui_click.wav.
-- Esclusi per scelta: swatch generati a runtime (non esistono allo Start -> niente dipendenza da ordine)
-  e i TouchButton custom (non UI.Button -> i tasti di gioco restano muti).
-
-**Menu — scope v1 single-player**
-- Rimossa la riga modalita ModeRow_G (1P/2P). MainMenuController costruisce SEMPRE OnePlayerVsCPU;
-  difficolta sempre rilevante quindi sempre visibile. MatchMode.TwoPlayers resta in Core per il futuro.
-- SelectorP2 in single-player = selettore del CHARACTER DELLA CPU. Errori P1/CPU separati e parlanti.
-
-**Font**
-- Pixel Operator (licenza CC0, uso commerciale libero, nessuna attribuzione) come famiglia unica
-  (Bold = titolo, Regular = corpo). TMP asset in RASTER + Filter Point, testo a taglie multiplo intero
-  della nativa. NB: NON usare SDF per i pixel font (sfoca).
-
-**Skin bottoni**
-- Frame bottone + SelectedMark in 9-slice (PPU 25, Filter Point, border 4). SelectedMark passato da
-  Simple a Sliced (fix deformazione angoli). Button Transition = None (il tint manuale resta appiccicato).
-- Palette "caldo spiaggia" applicata (art placeholder, da sostituire con quella definitiva).
-
-**Layout**
-- Spaziatura/padding uniformi (pixel interi), colonna centrata, catena CSF ripulita
-  (un solo Content Size Fitter in cima; figli dimensionati dai Layout Group).
-
-**Gate finale**
-- Checklist validazione multi-device (validazione_multidevice.md): aspect ratio 16:9..21:9 + 4:3,
-  safe-area su notch reale, raggiungibilita touch, performance su device debole, flussi Gioca+Torneo
-  su hardware, audio/persistenza, build IL2CPP/ARM64 + Android 7.0, landscape lock.
-  VERDE (log vuoto) = Fase 5 ufficialmente chiusa.
+Fase 5 · Safe-area: SafeAreaFitter (Screen.safeArea → anchor normalizzati, indipendente dal Canvas Scaler; Play-mode only). Applicato al MainMenu avvolgendo MenuColumn in un container SafeArea. Gameplay al passo successivo.
+Fase 5 · Safe-area (Gameplay): container SafeArea avvolge ScoreText + TouchControls; WinPanel/TournamentPanel restano figli diretti del Canvas (sfondo fine-match edge-to-edge, contenuto centrato già sicuro). Safe-area chiusa su entrambe le scene.
+Backlog / molto dopo — 2P touch: rimandato (caso d'uso raro su mobile; il layer input è già astratto, si aggiunge al bordo senza debito).
+Debiti Fase 5 da non dimenticare — nascondere il bottone "2 Giocatori" sulle piattaforme touch (oggi P2 su mobile non ha input → match ingiocabile). Stesso pattern della riga difficoltà (visibile solo in 1P). Va chiuso prima della pubblicazione; naturale collocarlo nell'estetica/layout menu.
+Fase 5 · Tap UI SFX: UIClickFeedback (Presentation) auto-aggancia il click a tutti i Button statici del Canvas via SfxPlayer → rispetta lo slider SFX. Aggiunto SfxPlayer al MainMenu. Swatch runtime e TouchButton esclusi per scelta. Placeholder ui_click.wav sintetizzato. Debito tap UI di Fase 4 chiuso.
+Scope v1: SOLO single player. 2P locale (stesso telefono) e multiplayer online → entrambi rimandati e da valutare dopo il completamento del single-player. Nessun debito: input già astratto (IPlayerInput) per il 2P locale al bordo; l'online è un layer esterno, non si architetta ora.
+Menu (in estetica/layout): togliere la riga modalità ModeRow_G (o nascondere il 2P) — in v1 c'è solo 1P. Regola di visibilità, si chiude nello step estetica.
+Fase 5 · Menu (deterministico): rimossa ModeRow_G (1P/2P) — v1 solo single-player. MainMenuController costruisce sempre OnePlayerVsCPU, difficoltà sempre visibile. MatchMode.TwoPlayers resta in Core per il 2P locale futuro. Torneo invariato.
+Appeso a step B (layout/flusso): nascondere P2/difficoltà/stadio in intento-torneo richiede uno stato di modalità nel menu (bivio UX: due bottoni-lancio vs "scegli modalità → configura → avvia"). Da decidere lì.
+Fase 5 · Step B — font: adottato Pixel Operator (CC0) come famiglia unica (Bold=titolo, Regular=corpo). TMP asset in RASTER + Filter Point, taglie a multipli interi della nativa. Palette scelta: "caldo spiaggia" (da applicare allo skin).
+Fase 5 · Step B — skin: frame bottone + SelectedMark in 9-slice (PPU 25, Filter Point, border 4). SelectedMark Simple→Sliced (fix deformazione angoli). Palette spiaggia applicata (sabbia/blu/corallo). Art placeholder, da sostituire con quella definitiva.
+Fase 5 · Step B — layout: spaziatura/padding uniformi (pixel interi), colonna centrata, catena CSF ripulita (un solo Content Size Fitter in cima). Step B chiuso.
 
 ---
 
@@ -155,9 +122,7 @@ Assets/_Project/
     Difficulty/  AIStats_Easy/Medium/Hard.asset
     Stages/      Stage_Spiaggia.asset, Stage_Palazzetto.asset
     Audio/       GameAudio.mixer (Master -> Music, SFX)
-  Audio/    SFX/ (net/jump/whistle/ui_click...) Music/ (bgm_loop...)   [placeholder sintetizzati]
-  Fonts/    PixelOperator.ttf + TMP Font Asset (RASTER, Point)          [Fase 5]
-  Art/UI/   ui_button.png, ui_selected.png (9-slice placeholder)        [Fase 5]
+  Audio/    SFX/ (net/jump/whistle...) Music/ (bgm_loop...)   [placeholder sintetizzati]
   Sprites/  Ball/ Characters/ Environment/ UI/
   Scripts/
     AI/           AIPlayerInput, AIStats
@@ -170,27 +135,23 @@ Assets/_Project/
                   KeyboardPlayerInput, TouchButton, TouchPlayerInput
     Presentation/ BallSquashStretch, CameraShake, HitStop, SpriteAnimator, PlayerMarker,
                   ImpactFeedback, PlayerFeedback, MatchFeedback,          (famiglia feedback)
-                  SfxPlayer, MusicPlayer, VolumeController, VolumeSettings, (audio)
-                  UIClickFeedback                                          (tap UI, Fase 5)
+                  SfxPlayer, MusicPlayer, VolumeController, VolumeSettings (audio)
     UI/           HUDController, WinScreenController, MainMenuController, TournamentLauncher,
                   TournamentFlow, ContentSwatch, ContentSelector<T>, CharacterSelector,
-                  StageSelector, RecordDisplay, AudioSettingsUI,
-                  SafeAreaFitter                                           (safe-area, Fase 5)
+                  StageSelector, RecordDisplay, AudioSettingsUI
 ```
 Namespace allineati alle cartelle: BeachVolley.Core/.Gameplay/.AI/.Content/.Presentation/.UI
 
 **Gerarchia Gameplay:** _Bootstrap, Main Camera, Environment (Background, LeftWall,
 RightWall, NetPlaceholder[tag Net], Ground[sprite sabbia+collider stesso GameObject]),
-Gameplay (Player1[+Visual+Marker+PlayerFeedback], Player2[idem], Ball+Visual),
-UI (Canvas > SafeArea[ScoreText, TouchControls] + WinPanel/TournamentPanel diretti + UIClickFeedback),
+Gameplay (Player1[+Visual+Marker+PlayerFeedback], Player2[idem], Ball+Visual), UI (Canvas),
 EventSystem, FX, Audios (SfxPlayer+AudioSource output->SFX; ImpactFeedback; MatchFeedback),
 StageDresser. (Opz.) MusicPlayer per il boot diretto.
 
-**Gerarchia MainMenu (Canvas):** SafeArea > MenuColumn (Vertical LG) > DifficultyRow,
-SelectorsRow (SelectorP1, SelectorP2=CPU), StageRow, MusicSlider, SfxSlider, Play/BtnTorneo.
-UIClickFeedback sul Canvas. MenuManager ha MainMenuController + TournamentLauncher + RecordDisplay +
-VolumeController + VolumeSettings + AudioSettingsUI. GameManager a RADICE. MusicPlayer (root, persistente).
-Audios (SfxPlayer output->SFX, aggiunto in Fase 5). (Nota: ModeRow_G RIMOSSA in v1.)
+**Gerarchia MainMenu (Canvas):** MenuColumn (Vertical LG) > ModeRow, DifficultyRow,
+SelectorsRow, StageRow, MusicSlider, SfxSlider, Play/BtnTorneo. MenuManager ha
+MainMenuController + TournamentLauncher + RecordDisplay + VolumeController + VolumeSettings +
+AudioSettingsUI. GameManager a RADICE. MusicPlayer (root, persistente).
 
 ---
 
@@ -208,8 +169,8 @@ Audios (SfxPlayer output->SFX, aggiunto in Fase 5). (Nota: ModeRow_G RIMOSSA in 
 - ContentSwatch (prefab): una cella toccabile.
 - ContentSelector<T> (base generica astratta): genera uno swatch per elemento, traccia Selected.
   Sottoclassi di 2 righe: CharacterSelector, StageSelector.
-- MainMenuController: raccoglie personaggio P1 + character CPU (SelectorP2) + difficolta + stadio ->
-  MatchConfig (SEMPRE OnePlayerVsCPU in v1) via MatchSession -> carica Gameplay. NON gestisce audio.
+- MainMenuController: raccoglie personaggi/modalita/difficolta/stadio -> MatchConfig via MatchSession
+  -> carica Gameplay. Riga difficolta visibile solo in 1P. NON gestisce audio (vedi AudioSettingsUI).
 
 **Difficolta CPU**
 - AIStats_Easy/Medium/Hard: leva forte = usePrediction (off su Easy). La difficolta SOSTITUISCE
@@ -255,7 +216,6 @@ Audios (SfxPlayer output->SFX, aggiunto in Fase 5). (Nota: ModeRow_G RIMOSSA in 
 
 **Meccanismi audio**
 - SfxPlayer: MECCANISMO one-shot (PlayOneShot, layering, gira durante hit-stop). Scene-scoped singleton.
-  Metodo pubblico: Play(clip, volume=1). Presente in Gameplay E MainMenu (aggiunto in Fase 5).
 - MusicPlayer: MECCANISMO musica in loop. Singleton PERSISTENTE (root + DontDestroyOnLoad). Il dedup
   singleton rende sicuro metterlo in piu scene: musica ininterrotta tra menu e gameplay. Sa COSA
   suona, non QUANTO forte.
@@ -270,41 +230,24 @@ Audios (SfxPlayer output->SFX, aggiunto in Fase 5). (Nota: ModeRow_G RIMOSSA in 
 
 ---
 
-# COMPONENTI CHIAVE FASE 5 (MOBILE & POLISH)
-
-- SafeAreaFitter (UI): Screen.safeArea -> anchor normalizzati; ricalcola solo su cambio safe-area/schermo
-  (guard in Update). Play-mode only. Va su un container full-stretch figlio del Canvas; dentro la UI da proteggere.
-- UIClickFeedback (Presentation): un solo componente sul Canvas; aggancia il click SFX a tutti i Button
-  statici via SfxPlayer. Buttons runtime e TouchButton non coperti (di proposito).
-
----
-
 # RIFINITURE / DEBITI RIMANDATI
 
-**Fase 2 (gameplay/arte) — ANCORA APERTI**
+**Fase 2 (gameplay/arte)**
 - Rete vestita: oggi barra bianca con collider; manca sprite (pali+maglia).
 - Mira CPU: rimanda la palla ma non sceglie DOVE.
 - Predizione CPU coi rimbalzi sui muri: ignora le carambole laterali.
 
-**Fase 3/5 (menu/UI) — stato aggiornato**
-- [FATTO in F5] Cornice selezione (SelectedMark): ora Sliced (border 4).
-- [FATTO in F5] Layout menu: spaziature/centratura + catena Content Size Fitter ripulita.
-- [FATTO in F5] Font/tema base: Pixel Operator + bottoni 9-slice + palette spiaggia (art placeholder).
-- [APERTO] Controlli irrilevanti in torneo (P2/difficolta/stadio) visibili ma ignorati -> nasconderli.
-  Richiede uno STATO di modalita nel menu (bivio UX: due bottoni-lancio vs "scegli modalita -> configura -> avvia").
-- [APERTO] Rinominare StageDefinition.sandSprite -> floorSprite (refactor, commit a se).
-- [APERTO] Rietichettare SelectorP2 -> "CPU / Avversario" (ora e il character CPU, non "player 2").
+**Fase 3 (menu/UI) — polish in Fase 5**
+- Estetica menu grezza: bottoni di sistema, niente titolo/tema/centratura.
+- Layout menu: ordine righe, spaziature/centratura, catena Content Size Fitter da raffinare.
+- Cornice selezione (SelectedMark): Border=6 + Image Type=Sliced (oggi stirata).
+- Controlli irrilevanti in torneo (colonna P2, difficolta/stadio) visibili ma ignorati -> nasconderli.
+- Rinominare StageDefinition.sandSprite -> floorSprite.
 
-**Fase 4 (audio)**
-- [FATTO in F5] Tap UI/menu SFX: UIClickFeedback.
-- Placeholder audio sintetizzati (net/jump/whistle/bgm/ui_click): sostituibili con asset veri quando si vuole
+**Fase 4 (audio) — debito unico**
+- Tap UI/menu SFX: rimandato a Fase 5 (e polish, non audio di gioco). SfxPlayer gia pronto.
+- Placeholder audio sintetizzati (net/jump/whistle/bgm): sostituibili con asset veri quando si vuole
   (Bfxr per SFX; Beepbox/FamiStudio per musica). L'import musica lunga: Vorbis + Load Type Streaming.
-
-**Fase 5 (mobile) — eventuale coda**
-- [SE il gate lo rivela] Application.targetFrameRate esplicito, se su device debole ci sono oscillazioni.
-- Art definitiva a tema (sostituire i placeholder 9-slice + WAV): fase art dedicata, un asset alla volta.
-  Riferimento di stile: cartelli di legno, castelli di sabbia per difficolta, boombox per gli slider.
-  Sfondo full-screen FUORI dalla SafeArea.
 
 ---
 
@@ -358,19 +301,11 @@ Audios (SfxPlayer output->SFX, aggiunto in Fase 5). (Nota: ModeRow_G RIMOSSA in 
 - Catena layout annidati: Layout Element -> Layout Group -> Content Size Fitter. Ogni livello deve
   LEGGERE l'altezza dei figli (Control Child Size Height) E DICHIARARLA al genitore, o si spezza.
   (Uno Slider in un Vertical LG con Control Child Height puo schiacciarsi: dargli un Layout Element
-  con Preferred Height.) Un solo CSF in cima; niente CSF annidati (causano "salti" a un frame sbagliato).
+  con Preferred Height.)
 - "Contenitore" = GameObject vuoto + RectTransform + Layout Group (NON un Panel: l'Image ruba i click).
 - Selezione "uno tra N": Button + tint manuale richiede Transition = None.
 - Slider: settare slider.value PRIMA di agganciare onValueChanged (o SetValueWithoutNotify), altrimenti
   l'init scatena un cambio/salvataggio spurio.
-
-**Mobile / polish (Fase 5)**
-- Safe-area: lavorare in anchor NORMALIZZATI (safeArea / Screen.wh) rende il fitter indipendente dal
-  Canvas Scaler. Gli sfondi/overlay full-bleed vanno FUORI dal container SafeArea; la UI ai bordi DENTRO.
-- TMP + pixel font: usare Render Mode RASTER + atlante Filter Point + testo a taglie multiplo intero
-  della nativa. L'SDF sfoca i pixel: non e adatto ai font pixel.
-- 9-slice: il Border deve essere >= spessore del bordo disegnato; Image Type = Sliced tiene gli angoli
-  netti a qualsiasi dimensione. Coerenti con PPU 25 e Filter Point.
 
 **Audio / settings (Fase 4)**
 - PlayOneShot rispetta l'Output dell'AudioSource -> instradare al mixer = solo inspector, zero codice.
@@ -397,17 +332,11 @@ Audios (SfxPlayer output->SFX, aggiunto in Fase 5). (Nota: ModeRow_G RIMOSSA in 
 - Sabbia/pavimento: sprite 512x64, Position Y -5.78, Scale (1,1,1), layer Midground.
 - Sfondo: sprite 480x270, Position (0,0,0), layer Background.
 - Canvas UI: Scale With Screen Size, ref 1920x1080.
-- Font: Pixel Operator (CC0). TMP RASTER + Filter Point; taglie a multipli interi della nativa.
-- Palette "caldo spiaggia": sabbia #E8D8A0, blu profondo #1B3A57, corallo #F26B5E, turchese #3AB0C8, bianco caldo #FFF6E6.
-- 9-slice UI: PPU 25, Filter Point, border 4, Image Type Sliced.
 - Build: IL2CPP, ARMv7 + ARM64, Minimum API Android 7.0. GameManager Script Execution Order -100.
 - Salvataggio: JSON in persistentDataPath/save.json (cancellabile per reset).
 - Audio: AudioMixer GameAudio (Master->Music,SFX); param esposti MusicVol, SfxVol; silenzio = -80 dB.
 
 # BACKLOG IDEE FUTURE (NON implementare ora)
-- Fase art dedicata: sostituire i placeholder con arte a tema spiaggia (un asset alla volta).
-- Audio reale: rimpiazzare i WAV placeholder (incl. ui_click).
-- 2P locale (stesso telefono) + multiplayer online: molto dopo, da valutare. Nessun debito (IPlayerInput astratto).
 - Variazione potenza del colpo in base alla velocita in ingresso (smash).
 - Mira deliberata della CPU verso il campo scoperto.
 - Animazioni piu ricche (Aseprite, sprite di profilo con flip).

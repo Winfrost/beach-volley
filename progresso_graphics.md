@@ -111,6 +111,16 @@ Il gioco e completo end-to-end, sonoro E rifinito per mobile. Single-player pron
   su hardware, audio/persistenza, build IL2CPP/ARM64 + Android 7.0, landscape lock.
   VERDE (log vuoto) = Fase 5 ufficialmente chiusa.
 
+# RAMO GRAFICA MENU (parallelo, Fase 5)
+Obiettivo: menu a tema (rif. mockup) con flusso a DUE LIVELLI.
+- Poster: cartelli Gioca/Torneo, castelli difficolta (usati da Gioca, ignorati dal Torneo), boombox volumi.
+- Config overlay (al tap): personaggio + stadio (+ avversario CPU solo per Gioca) -> chiude il debito
+  "controlli irrilevanti in torneo".
+- Rendering: Screen Space Overlay (riusa SafeAreaFitter/UIClickFeedback/AudioSettingsUI).
+- Ancoraggio: sfondo full-bleed FUORI SafeArea; controlli DENTRO.
+- [FATTO] Passo 1: placeholder PIL in Art/UI/Menu (10 sprite, PPU 25). Scala UI = x4 dei px nativi.
+- [PROSSIMO] Passo 2: sfondo full-bleed in scena + framing multi-aspect.
+
 ---
 
 # ARCHITETTURA — modello mentale (leggere prima di tutto)
